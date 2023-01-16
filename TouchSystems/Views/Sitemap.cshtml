@@ -1,0 +1,178 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@using Umbraco.Extensions
+@using Umbraco.Cms.Core.Models
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Sitemap>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+
+@{ Layout = "master.cshtml";
+    var herobackground = "";
+    if (Model.Value("heroBackground") != null)
+    {
+        if (Model.Value<IPublishedContent>("heroBackground") != null)
+        {
+            herobackground = Model.Value<IPublishedContent>("heroBackground").Url();
+        }
+    }
+
+}
+
+@section Header{
+
+    @if (!string.IsNullOrEmpty(herobackground))
+    {
+
+        <style>
+    #headerimage{
+        background-image:url(@herobackground) !important
+    }
+        </style>
+
+    }
+}
+
+@section BannerText{
+    <h1 class="bannerheading2">
+        @Model.PageTitle
+    </h1>
+
+}
+
+<style>
+    .ps-list--link2 {
+        background-color: #f9f9f9;
+        border: solid 1px #e6e6e6;
+        display: block;
+        width: 100%;
+        padding: 30px 20px !important;
+        margin: 20px 0 40px !important;
+       
+    }
+        .ps-list--link2 li {
+       display:inline-block;
+     
+        }
+        .ps-list--link2 li a{
+         font-size:14px
+        }
+            .ps-list--link2 li::before {
+                content: '';
+                display: inline-block;
+                position:relative;
+                top:14px;
+                vertical-align:top;
+                width: 5px;
+                height: 5px;
+                margin-right: 12px;
+                background-color:#808080;
+                margin-left:20px;
+            }
+
+    .ps-list--link2 {
+        background-color: #f9f9f9;
+        border: solid 1px #e6e6e6;
+        display: block;
+        width: 100%;
+        padding: 30px 20px !important;
+        margin: 20px 0 40px !important;
+    }
+        .ps-list--link2 li ul {
+            margin-left: 40px !important;
+        }
+            .ps-list--link2 li ul li::before {
+                content: '';
+                display: inline-block;
+                position: relative;
+                top: 16px;
+                vertical-align: top;
+                width: 4px;
+                height: 4px;
+                margin-right: 12px;
+                background-color: #001138;
+                margin-left: 20px;
+            }
+</style>
+<input type="hidden" name="currentpageid" id="currentpageid" value="@Model.Id" />
+<div class="ps-product-list ps-product-list--2">
+    <div class="container">
+
+
+        <div class="ps-section__content ">
+            <br />
+            <div class="row">
+                <div class="col-md-1">
+
+                </div>
+                <ul class="col-md-10">
+
+                    <article class="contentpage">
+                        @Html.GetGridHtml(Model, "bodyText", "bootstrap3-fluid")
+                    </article>
+                    <h3 style="text-align:center">General</h3>
+                    @{
+                        var gnlinks = Model.General;
+                    }
+                    <ul class="ps-list--link2" style="display:inline-block">
+                        @foreach (var link in gnlinks.Where(x => x.IsVisible() && x.IsPublished()))
+                        {
+                            <li><a href="@link.Url()" target="">@link.Name</a></li>
+
+                        }
+                    </ul>
+                    <h3 style="text-align:center">Categories</h3>
+                    @{
+                        var catlinks = Model.MainCategory;
+                    }
+                    <ul class="ps-list--link2" style="display:inline-block">
+                        @foreach (var link in catlinks)
+                        {
+                            <li style="display:block">
+                                <a href="@link.Url()" target="" class="sitemaphd">@link.Name</a>
+
+                                <ul>
+                                    @{
+                                        var maincat = Umbraco.Content(link.Id);
+                                    }
+                                    @foreach (var subitem in maincat.Children.Where(x => x.IsVisible()))
+                                    {
+                                        <li><a href="@subitem.Url()" target="">@subitem.Name</a></li>
+                                    }
+
+                                </ul>
+                            </li>
+
+
+
+                        }
+                    </ul>
+                    <h3 style="text-align:center">Products</h3>
+                    @{
+                        var prolinks = Model.Products;
+                    }
+                    <ul class="ps-list--link2" style="display:inline-block">
+                        @foreach (var link in prolinks)
+                        {
+                            <li>
+                                <a href="@link.Url()" target="" class="sitemaphd">@link.Name</a>
+                                <ul>
+                                    @{
+                                        var maincat = Umbraco.Content(link.Id);
+                                    }
+                                    @foreach (var subitem in maincat.Children.Where(x => x.IsVisible()))
+                                    {
+                                        <li><a href="@subitem.Url()" target="">@subitem.Name</a></li>
+                                    }
+
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+            
+                    </ul> 
+                    </div>
+
+        </div>
+
+        </div>
+    </div>
+
+

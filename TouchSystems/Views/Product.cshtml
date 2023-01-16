@@ -1,0 +1,1648 @@
+﻿@using TouchSystems.ViewModel
+@using Microsoft.AspNetCore.Http
+@using Umbraco.Cms.Web.Common.PublishedModels
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using Umbraco.Cms.Core.Routing
+@using Umbraco.Cms.Web.Common
+@using Umbraco.Extensions
+
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Product>
+@inject IHttpContextAccessor HttpContextAccessor
+@{ Layout = "master.cshtml";
+
+    var standardfeatures = Model.Parent<Products>().StandardFeatures;
+    var commonspecs = Model.Parent<Products>().Specifications;
+    var httpContext = HttpContextAccessor.HttpContext;
+    var site = Model.Root();
+    int cpulistnode = 1259;
+    int touchlistnode = 1274;
+    var cpulist = site.Children.Where(x => x.IsVisible() && x.Id == cpulistnode).FirstOrDefault();
+    var touchlist = site.Children.Where(x => x.IsVisible() && x.Id == touchlistnode).FirstOrDefault();
+    string productdescription = Model.ProductName;
+    //    var ordoptions = Model
+    //.Children()
+    //.Where(x => x.IsVisible());
+    var ssobjlist = site.Children.Where(x => x.IsVisible() && x.Id == 1207).FirstOrDefault(); 
+    bool sizeselected = false;
+    var screensize = Model.ModelNumber; /* "BENEFITS"; */
+    var modelno = Model.ModelNumber;
+    var producttype = Model.ProductType;
+   /*  var productmenuname = Model.MenuName;*/
+    var screenno = "";
+    var partno = "";
+    var actualscreensize = "";
+    var screenreso = "";
+    double ssno = 0;
+    var displayinfo = "";
+    var aspectratio = "";
+    var iscreentype = "";
+    var touchtypes = Model.TouchType;
+
+
+   /* 2022-12-01 David added*/
+    productdescription = productdescription.ToString().Substring(Model.ModelNumber.ToString().Length, (productdescription.ToString().Length - Model.ModelNumber.ToString().Length));
+ 
+    
+    if (httpContext != null && !string.IsNullOrEmpty(httpContext.Request.Query["size"]))
+    {
+        string sskey = httpContext.Request.Query["size"];
+        if (!string.IsNullOrEmpty(sskey))
+        {
+            //  var ssobj = ssobjlist.Children().Where(x => x.IsVisible() && x.Value("screenSizeInch").ToString() == sskey.Replace("inch", "")).FirstOrDefault();
+            var ssobj = ssobjlist.Children().Where(x => x.IsVisible() && x.Name.ToString().ToLower() == sskey.ToLower()).FirstOrDefault();
+            if (ssobj != null)
+            {
+                
+                sizeselected = true;
+                screensize = ssobj.Value("screenSizeInch").ToString() + " inch";
+                actualscreensize = ssobj.Value("screenSizeInch").ToString();
+                screenno = ssobj.Value("screenSizeNumber").ToString();
+                partno = ssobj.Value("partNumber").ToString();
+                screenreso = ssobj.Value("screenResolution") + " (" + ssobj.Value("aspectRatio") + ")";
+                displayinfo = ssobj.Value("displayInfo").ToString();
+                aspectratio = ssobj.Value("aspectRatio").ToString();
+
+                if (aspectratio == "4:3" || aspectratio == "5:4")
+                {
+                    iscreentype = "Standard";
+                }
+                else
+                {
+                    iscreentype = "Widescreen";
+                }
+                //update modelno
+                if (Model.ModelNumber.ToString().Contains("-"))
+                {
+                    string[] mn = new string[] { };
+                    mn = Model.ModelNumber.ToString().Split('-');
+                    modelno = mn[0].Remove(mn[0].Length - 2) + partno + "-" + mn[1];
+                }
+                else
+                {
+                    modelno = Model.ModelNumber.ToString().Remove(Model.ModelNumber.ToString().Length - 2) + partno;
+                }
+                //end
+
+            }
+        }
+
+    }
+
+    var herobackground = "";
+    if (Model.Value("heroBackground") != null)
+    {
+        if (Model.Value<IPublishedContent>("heroBackground") != null)
+        {
+            herobackground = Model.Value<IPublishedContent>("heroBackground").Url();
+        }
+    }
+    var threshold = Convert.ToDouble(
+                        @Model
+                        .AncestorOrSelf(1)
+                        .Children
+                        .Where(x => x.ContentType.Alias == "generalSettings")
+                        .First()
+                        .Value("reCaptchaScoreThreshold")
+                    );
+
+}
+
+@section Header{
+    @if (!string.IsNullOrEmpty(herobackground))
+    {
+
+        <style>
+                #headerimage{
+                    background-image:url(@herobackground) !important
+            }
+        </style>
+    }
+
+    @if (sizeselected == false)
+    {
+        <style>
+            .screensizebox {
+                right: 45px
+            }
+        </style>
+    }
+    else
+    {
+        <style>
+            .screensizebox {
+                right: -137px
+            }
+        </style>
+    }
+
+<style>
+
+
+      
+</style>
+
+    <style>
+      #tab-6  ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+            color: white !important;
+            opacity: 1 !important; /* Firefox */
+        }
+
+      #tab-6 :-ms-input-placeholder { /* Internet Explorer 10-11 */
+            color: white !important;
+            opacity: 1 !important;
+        }
+
+        #tab-6 ::-ms-input-placeholder { /* Microsoft Edge */
+            color: white !important;
+            opacity: 1 !important; /* Firefox */
+        }
+
+      #tab-6  .form-control:focus {
+            color: white;
+        }
+
+        #homepage-7{background-color: #fafbff;}
+    </style>
+
+}
+
+
+<input type="hidden" name="currentpageid" id="currentpageid" value="@Model.Id" />
+@section BannerText{
+    <h1>@Model.ModelNumber
+    <span>@productdescription<span></h1>
+}
+
+<div class="ps-page--product">
+    
+    <div class="ps-container">
+        <div class="ps-page__container">
+            <div class="ps-page__left">
+                <div class="ps-product--detail ps-product--fullwidth">
+                    <div id="ssinfo">  <span> @modelno </span>  </div>
+                    @*<div class="ps-product__header" style="padding-top:20px">*@
+                    <div class="ps-product__header" style="padding-top:0px">
+
+                        @if (sizeselected == false)
+                        {
+                            <div class id="productvideobx">
+                                @*<h1 class="product-welcome">
+                                      test to see how it might look
+                                    Please select a Display Size from the Right Side Screen Size Selector Menu
+                                    </h1>*@
+                                @if (Model.CoverPhoto != null)
+                                {
+                                    <div class="item" style="text-align: center;"><a href="@Model.CoverPhoto.Url()"><img src="@Model.CoverPhoto.GetCropUrl(width: 350, height: 350, quality:80, furtherOptions: "&format=webp")" alt="@Model.Name" title="@Model.Name" style="max-width:350px"></a></div>
+                                }
+                                
+                               
+                                 
+                                     
+                                      @if (producttype != "Accessory")
+                                        {
+                                             <h3  class id="product-welcome">
+                                                Welcome to the @screensize product page.
+                                            </h3>
+                                            <h4  class id="product-welcome">
+                                                Please click on a display size in the "Screen Sizes" selector<br />
+                                                on the righthand side of the page
+                                                <span class="arrow"></span>
+                                            </h4>
+                                        }
+                                        else
+                                        {
+                                        
+                                        }
+                                
+                         
+                                
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="ps-product__thumbnail" data-vertical="false">
+                                <figure style="max-width:360px; margin-left: auto; margin-right: auto;">
+                                    <div class="ps-wrapper">
+                                        <div class="ps-product__gallery" data-arrow="true">
+                                            @if (aspectratio == "")
+                                            {
+                                                if (Model.CoverPhoto != null)
+                                                {
+                                                    <div class="item"><a href="@Model.CoverPhoto.Url()"><img src="@Model.CoverPhoto.GetCropUrl(width: 360, height: 360, quality:80, furtherOptions: "&format=webp")" alt="@Model.Name" title="@Model.Name"></a></div>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                var modelimages = Model.TouchType.ToList().Where(x => x.Value("screenSize").ToString() == actualscreensize);
+                                                if (modelimages.Count() == 0)
+                                                {
+                                                    // modelimages = Model.TouchType.ToList().Where(x => x.Value("screenResolutionOpt").ToString() == aspectratio);
+                                                }
+
+                                                foreach (var tt in modelimages)
+                                                {
+                                                    var ordoptionImages = tt.Value<IEnumerable<IPublishedContent>>("itemPhoto");
+                                                    if (ordoptionImages != null)
+                                                    {
+                                                        foreach (var imgitem in ordoptionImages)
+                                                        {
+                                                            <div class="item"><a href="@imgitem.Url()"><img src="@imgitem.GetCropUrl(width: 360, height: 360, quality:80, furtherOptions: "&format=webp")" alt="@imgitem.Name" title="@imgitem.Name"></a></div>
+                                                        }
+
+                                                    }
+
+                                                }
+                                            }
+
+
+
+                                        </div>
+                                    </div>
+                                </figure>
+                                <div class="ps-product__variants" data-item="5" data-md="5" data-sm="5" data-arrow="false">
+
+                                    @if (aspectratio == "")
+                                    {
+                                        if (Model.CoverPhoto != null)
+                                        {
+                                            <div class="item"><img src="@Model.CoverPhoto.GetCropUrl(width: 80, height: 80, quality:80, furtherOptions: "&format=webp")" alt="@Model.Name" title="@Model.Name" style="max-width:100px"></div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        var modelimages = Model.TouchType.ToList().Where(x => x.Value("screenSize").ToString() == actualscreensize);
+                                        if (modelimages.Count() == 0)
+                                        {
+                                            //  modelimages = Model.TouchType.ToList().Where(x => x.Value("screenResolutionOpt").ToString() == aspectratio);
+                                        }
+
+
+                                        foreach (var tt in modelimages)
+                                        {
+                                            var ordoptionImages = tt.Value<IEnumerable<IPublishedContent>>("itemPhoto");
+                                            if (ordoptionImages != null)
+                                            {
+                                                foreach (var imgitem in ordoptionImages)
+                                                {
+                                                    <div class="item"><img src="@imgitem.GetCropUrl(width: 80, height: 80, quality:80, furtherOptions: "&format=webp")" alt="@imgitem.Name" title="@imgitem.Name" style="width:80px; height:80px"></div>
+                                                }
+
+                                            }
+                                        }
+                                    }
+
+                                </div>
+                            </div>
+                            <div class="ps-product__info">
+                                <div class="ps-product__desc" style="margin-top:25px; padding-left:20px">
+                                    <ul>
+                                        <li>@(screensize == @Model.ModelNumber + " RANGE" ? "" : "" + screensize + " ") </li>
+                                        <li>@(screensize == @Model.ModelNumber + " RANGE" ? "" : "Resolution " + screenreso)</li>
+
+                                    </ul>
+                                    @Model.Description
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="ps-product__content ps-tab-root">
+                        <ul class="ps-tab-list">
+                            <li class="@(sizeselected == false ? "active" : "")"><a href="#tab-1">BENEFITS</a></li>
+                            <li class="@(sizeselected == true ? "active" : "")"><a href="#tab-2">ORDER OPTIONS</a></li>
+                             @if (producttype != "Accessory")
+                                                                {
+                                                                      <li><a href="#tab-6">PRODUCT BUILDER</a></li>
+}
+                          
+                            <li><a href="#tab-3">SPECIFICATIONS</a></li>
+                             @if (producttype != "Accessory")
+                                                                {
+                                                                     <li><a href="#tab-4">ACCESSORIES</a></li>
+}
+                           
+                            <li><a href="#tab-5">SIMILAR PRODUCTS</a></li>
+                        </ul>
+                        <div class="ps-tabs">
+                            <div class="ps-tab @(sizeselected == false ? "active" : "")" id="tab-1">
+                                <div class="ps-document">
+                                  
+                                    @{
+                                        var benefittopphoto = Model.Value<IPublishedContent>("benefitTopPhoto");
+                                        var beneiftbottomphotos = Model.Value<IEnumerable<IPublishedContent>>("benefitBottomPhotos");
+                                    }
+                                    @if (benefittopphoto != null)
+                                    {
+                                        <div class="float-left">
+                                            <img src="@benefittopphoto.GetCropUrl(width: 300, height: 199, quality:80, furtherOptions: "&format=webp")" alt="@benefittopphoto.Name" title="@benefittopphoto.Name" align="left" />
+                                        </div>
+                                    }
+                                    @Html.Raw(Model.Value("benefitText1"))
+                                    @Html.Raw(Model.Value("benefitText2"))      
+                                    <div class="benefits-images">
+                    
+                                         @if (beneiftbottomphotos != null)
+                                            {
+                                                foreach (var item in beneiftbottomphotos)
+                                                {
+                                                    if (item != null)
+                                                    {
+                                                        <img src="@item.GetCropUrl(width: 260, height: 200, quality:80, furtherOptions: "&format=webp")" alt="@item.Name" title="@item.Name" style="width:260px; height:200px;" />
+                                                    }
+                                                }
+                                            }
+                                    
+                                    </div>
+                                   
+                                </div>
+                            </div>
+                            <div class="ps-tab @(sizeselected == true ? "active" : "")" id="tab-2">
+                                <div class="">
+
+                                    @if (screenno == "")
+                                    {
+                                        <div class="text-center screensizeoopt" style="color:navy">
+                                            <h4>Select screen size to see order options.</h4>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(screenno))
+                                    {
+                                        <div class="row">
+
+                                            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-lg-8">
+
+                                                <div class="row tab2options">
+                                                    <div class="col-xl-5 col-lg-5 col-md-5 col-sm-12 col-lg-5">
+                                                        <div class="ps-product2">
+                                                            @foreach (var item in Model.OrderOptionPhotos.Where(x => x.Value("screenType").ToString() == iscreentype))
+                                                            {
+                                                                //Model.Value<IEnumerable<IPublishedContent>>("benefitBottomPhotos");
+                                                                var ordoptionImage = item.Value<IPublishedContent>("itemPhoto");
+
+                                                                <div class="ps-product__thumbnail">
+                                                                    <div class="ps-product__thumbnail">
+                                                                        @if (ordoptionImage != null)
+                                                                        {
+                                                                            <img src="@ordoptionImage.GetCropUrl(width: 200, height: 200, quality:80, furtherOptions: "&format=webp")" alt="@ordoptionImage.Name" title="@ordoptionImage.Name" style="max-width:200px" />
+                                                                           
+                                                                        }
+
+                                                                    </div>
+                                                                </div>
+                                                                <div class="ps-product__container">
+                                                                    <div class="ps-product__content touchtype" style="font-size:12px; margin-bottom:20px; margin-top:10px">
+                                                                        <i class="fa fa-eye"></i>   @item.TouchType
+                                                                    </div>
+                                                                </div>
+                                                            }
+
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="col-xl-7 col-lg-7 col-md-7 col-sm-12 col-lg-7">
+                                                        @*Right*@
+
+                                                        <div class="ordoptmodno">
+                                                            <ul class="orderoptul">
+                                                                <li>
+                                                                    @if (producttype == "Touch Computer")
+                                                                    {
+                                                                        <span> @modelno</span>
+                                                                    }
+                                                                    else if (producttype == "Monitor")
+                                                                    {
+                                                                        <span> @modelno-M</span>
+                                                                    }
+                                                                    else if (producttype == "Computer")
+                                                                    {
+                                                                        <span> @Model.ModelNumber</span>
+                                                                    }
+                                                                </li>
+
+
+                                                                @if (producttype != "Monitor")
+                                                                {
+                                                                    <li>
+                                                                        <br />
+
+                                                                        @if (Model.CPU != null)
+                                                                        {
+                                                                            foreach (var item in Model.CPU)
+                                                                            {
+                                                                                <div class="modelpartno">@item.Value("CPUName")</div>
+                                                                            }
+                                                                        }
+
+
+
+                                                                    </li>
+                                                                }
+
+                                                                @if (producttype != "Computer")
+                                                                {
+                                                                    <li>
+                                                                        <br />
+                                                                        @if (Model.TouchTypes != null)
+                                                                        {
+                                                                            foreach (var str in Model.TouchTypes)
+                                                                            {
+                                                                                <div class="modelpartno">@str.ToString().Split('-').First()</div>
+                                                                            }
+                                                                        }
+
+                                                                    </li>
+
+
+                                                                    <li>
+                                                                        <div class="modelpartno">Optional</div><br />
+                                                                        @if (Model.OptionalTypes != null)
+                                                                        {
+                                                                            int iCount = 0;
+                                                                            foreach (var str in Model.OptionalTypes)
+                                                                            {
+                                                                                if (iCount == 0)
+                                                                                {
+                                                                                    <label class="modelpartno">@str.ToString().Split('-').First()</label>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <label class="modelpartno">| @str.ToString().Split('-').First()</label>
+                                                                                }
+                                                                                iCount += 1;
+                                                                            }
+                                                                        }
+
+                                                                    </li>
+                                                                }
+                                                            </ul>
+
+                                                        </div>
+
+
+                                                    </div>
+                                                </div>
+
+
+                                                @*@if (touchlist != null)
+                                                    {
+                                                        foreach (var touchtype in touchlist.Children.Where(x => x.IsVisible()))
+                                                        {
+                                                            var ttp = touchtype.Value("description").ToString();
+                                                            var ttt = touchtype.Value("fullName").ToString();
+                                                            if (ttp == "RT" && Convert.ToInt32(screenno) >= 32)
+                                                            {
+                                                                continue;
+                                                            }
+
+                                                            if (ttp == "PT" && Convert.ToInt32(screenno) <= 8)
+                                                            {
+                                                                continue;
+                                                            }
+
+                                                            if (ttp == "NT" && Convert.ToInt32(screenno) <= 32)
+                                                            {
+                                                                continue;
+                                                            }
+
+
+                                                            <div class="row tab2options">
+                                                                <div class="col-xl-5 col-lg-5 col-md-5 col-sm-12 col-lg-5">
+                                                                    <div class="ps-product2">
+                                                                        <div class="ps-product__thumbnail">
+                                                                            @{
+                                                                                var modelimages = Model.TouchType.ToList().Where(x => x.Value("screenResolutionOpt").ToString() == aspectratio && x.Value("screenSize").ToString() == actualscreensize);
+                                                                                if (modelimages.Count() == 0)
+                                                                                {
+                                                                                    modelimages = Model.TouchType.ToList().Where(x => x.Value("screenResolutionOpt").ToString() == aspectratio);
+                                                                                }
+                                                                            }
+
+
+
+                                                                            @if (modelimages != null)
+                                                                            {
+                                                                                foreach (var tt in modelimages.Take(1))
+                                                                                {
+                                                                                    var ordoptionImage = tt.Value<IPublishedContent>("itemPhoto");
+                                                                                    if (ordoptionImage != null)
+                                                                                    {
+                                                                                        <img src="@ordoptionImage.Url()" alt="" />
+                                                                                    }
+
+                                                                                }
+                                                                            }
+
+
+                                                                        </div>
+                                                                        <div class="ps-product__container">
+                                                                            <div class="ps-product__content touchtype">
+                                                                                <i class="fa fa-eye"></i>  @ttt
+
+                                                                            </div>
+
+                                                                        </div>
+                                                                    </div>
+
+                                                                </div>
+                                                                <div class="col-xl-7 col-lg-7 col-md-7 col-sm-12 col-lg-7">
+
+
+                                                                    @if (cpulist != null)
+                                                                    {
+
+                                                                        @foreach (var item in cpulist.Children.Where(x => x.IsVisible()))
+                                                                        {
+
+                                                                            <div class="ordoptmodno">@modelno-@item.Name()-@ttp <i class="fa fa-square"></i> @item.Value("cPUDescription")</div>}}
+
+                                                                </div>
+                                                            </div>}
+
+
+                                                    }*@
+
+
+
+                                            </div>
+                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-lg-4">
+
+                                                <div class="stfbox">
+                                                    <div>
+
+                                                        @standardfeatures
+                                                        @Model.StandardFeatures
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>}
+
+
+                                    @if (screenno != "")
+                                    {
+                                        <div class="row">
+                                            <div class=" moreoptions" style="text-align: center;"><span>MORE OPTIONS</span></div>
+
+                                            @if (Model.ReusableMoreOptions != null)
+                                            {
+                                                foreach (MoreOptionItem moitem in Model.ReusableMoreOptions)
+                                                {
+                                                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6 col-lg-3 moreoptionslist">
+                                                        <h4>@moitem.OptionTitle</h4>
+                                                        @moitem.OptionDescription
+                                                    </div>}
+                                            }
+
+                                            @if (Model.MoreOption != null)
+                                            {
+                                                foreach (var moreoption in Model.MoreOption)
+                                                {
+                                                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6 col-lg-3 moreoptionslist">
+                                                        <h4>@moreoption.OptionTitle</h4>
+                                                        @moreoption.OptionDescription
+                                                    </div>}
+                                            }
+                                        </div>
+
+                                    }
+
+
+                                </div>
+                            </div>
+                            <div class="ps-tab" id="tab-3">
+                                @if (screenno == "")
+                                {
+
+
+                                    <div class="col-12 text-center " style="color:navy">
+                                        <h4>Select screen size to see specification.</h4>
+                                    </div>
+                                }
+                                else
+                                {
+                                    @Html.Raw(displayinfo)
+                                     @if (producttype != "Monitor")
+                                        {
+                                            @commonspecs
+                                        }
+                                    @Html.GetGridHtml(Model, "specification", "bootstrap3-fluid")
+
+                                }
+
+                            </div>
+                            <div class="ps-tab" id="tab-6">
+                                <div class="row">
+
+                                    @if (screenno == "")
+                                    {
+
+
+                                        <div class="col-12 text-center " style="color:navy">
+                                            <h4>Select screen size to see product builder.</h4>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="col-xl-6 col-md-6 col-sm-12 col-xs-12 col-lg-6 col-12" style="border-right:solid 1px rgb(24 37 63)">
+                                            <h2 class="pbheadingh2">GENERAL</h2>
+                                            @if ((Model.ModelType != null) && (Model.ModelType.Count() > 0))
+                                            {
+                                                <div class="row pbrow">
+                                                    <div class="col-xl-4 col-md-4 col-xs-4 col-lg-4" style="display: flex;align-items: flex-start;">
+                                                        <img src="~/img/productbuildericons/keyboard.png" style="width: 40px; margin-right: 20px; margin-top: 10px" align="left" />
+                                                        <span class="pbheading">Model Type</span>
+                                                    </div>
+                                                    <div class="col-xl-8 col-md-8 col-xs-8 col-lg-8 pbdetailbx">
+                                                        <div class="pblist">
+                                                            @foreach (var item in Model.ModelType.Where(x => x.IsVisible()))
+                                                            {
+                                                                <label><input type="checkbox" name="ModelType" value="@item.Value("Description")" class="" rel="@item.Id" data-val="@item.Value("Value")" checked="@item.Value("isSelected")"  /> @item.Value("Description")</label><br />
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+
+                                            @{
+                                                var kvmextendertype = Model.Value<IEnumerable<IPublishedContent>>("kVMExtenderType");
+
+                                            }
+                                            @if ((kvmextendertype != null))
+                                            {
+                                                <div class="row pbrow">
+                                                    <div class="col-xl-4 col-md-4 col-xs-4 col-lg-4" style="display: flex;align-items: flex-start;">
+                                                        <img src="~/img/productbuildericons/kvm.png" style="width: 40px; margin-right: 20px; margin-top: 10px" align="left" />
+                                                        <span class="pbheading">KVM Extender</span>
+                                                    </div>
+                                                    <div class="col-xl-8 col-md-8 col-xs-8 col-lg-8 pbdetailbx">
+                                                        <div class="pblist">
+                                                            @foreach (var item in kvmextendertype)
+                                                            {
+                                                                <label><input type="checkbox" name="KVMExtender" value="@item.Value("Description")" class="" rel="@item.Id" data-val="@item.Value("Value")" checked="@item.Value("isSelected")" /> @item.Value("Description")</label><br />
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+
+                                            @if ((Model.ScreenType != null) && (Model.ScreenType.Count() > 0))
+                                            {
+                                                <div class="row pbrow">
+                                                    <div class="col-xl-4 col-md-4 col-xs-4 col-lg-4" style="display: flex;align-items: flex-start;">
+                                                        <img src="~/img/productbuildericons/screentype.png" style="width: 40px; margin-right: 20px; margin-top: 10px" align="left" />
+                                                        <span class="pbheading">Touch Type</span>
+                                                    </div>
+                                                    <div class="col-xl-8 col-md-8 col-xs-8 col-lg-8 pbdetailbx">
+                                                        <div class="pblist">
+                                                            @foreach (var item in Model.ScreenType.Where(x => x.IsVisible()))
+                                                            {
+                                                                <label><input type="radio" name="ScreenType" class="updateformchekbox " value="@item.Value("Description")" rel="@item.Value("Value")" checked="@item.Value("isSelected")" /> @item.Value("Description")</label><br />
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+
+
+
+                                            @if ((Model.ScreenBrightness != null) && (Model.ScreenBrightness.Count() > 0))
+                                            {
+                                                <div class="row pbrow">
+                                                    <div class="col-xl-4 col-md-4 col-xs-4 col-lg-4" style="display: flex;align-items: flex-start;">
+                                                        <img src="~/img/productbuildericons/Brightness-Icon.png" style=" width: 40px; margin-right: 20px; margin-top: 10px" align="left" alt="" />
+                                                        <span class="pbheading">Screen Brightness</span>
+                                                    </div>
+                                                    <div class="col-xl-8 col-md-8 col-xs-8 col-lg-8 pbdetailbx">
+                                                        <div class="pblist">
+                                                            @foreach (var item in Model.ScreenBrightness.Where(x => x.IsVisible()))
+                                                            {
+                                                                <label><input type="radio" name="ScreenBrightness" value="@item.Value("Description")" class="" checked="@item.Value("isSelected")"  /> @item.Value("Description")</label><br />
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+
+
+                                            @if ((Model.CPU != null) && (Model.CPU.Count() > 0))
+                                            {
+                                                <div class="row pbrow">
+                                                    <div class="col-xl-4 col-md-4 col-xs-4 col-lg-4" style="display: flex;align-items: flex-start;">
+                                                        <img src="~/img/productbuildericons/cpu.png" style="width: 40px; margin-right: 20px; margin-top: 10px" align="left" />
+                                                        <span class="pbheading">CPU</span>
+                                                    </div>
+                                                    <div class="col-xl-8 col-md-8 col-xs-8 col-lg-8 pbdetailbx">
+                                                        <div class="pblist">
+                                                            @foreach (var item in Model.CPU.Where(x => x.IsVisible()))
+                                                            {
+                                                                <label><input type="radio" name="CPU" value="@item.Value("CPUDescription")" rel="@item.Value("CPUName")" class="" checked="@item.Value("isSelected")" /> @item.Value("CPUDescription")</label><br />
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+
+
+                                            @if ((Model.RAM != null) && (Model.RAM.Count() > 0))
+                                            {
+                                                <div class="row pbrow">
+                                                    <div class="col-xl-4 col-md-4 col-xs-4 col-lg-4" style="display: flex;align-items: flex-start;">
+                                                        <img src="~/img/productbuildericons/ram.png" style="width: 40px; margin-right: 20px; margin-top: 10px" align="left" />
+                                                        <span class="pbheading">RAM</span>
+                                                    </div>
+                                                    <div class="col-xl-8 col-md-8 col-xs-8 col-lg-8 pbdetailbx">
+                                                        <div class="pblist">
+                                                            @foreach (var item in Model.RAM.Where(x => x.IsVisible()))
+                                                            {
+                                                                <label><input type="radio" name="RAM" value="@item.Value("Description")" class="r_ram " checked="@item.Value("isSelected")" /> @item.Value("Description")</label><br />
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+
+                                            @if ((Model.SSD != null) && (Model.SSD.Count() > 0))
+                                            {
+                                                <div class="row pbrow">
+                                                    <div class="col-xl-4 col-md-4 col-xs-4 col-lg-4" style="display: flex;align-items: flex-start;">
+                                                        <img src="~/img/productbuildericons/ssd.png" style="width: 40px; margin-right: 20px; margin-top: 10px" align="left" />
+                                                        <span class="pbheading">SSD</span>
+                                                    </div>
+                                                    <div class="col-xl-8 col-md-8 col-xs-8 col-lg-8 pbdetailbx">
+                                                        <div class="pblist">
+                                                            @foreach (var item in Model.SSD.Where(x => x.IsVisible()))
+                                                            {
+                                                                <label><input type="radio" name="SSD" value="@item.Value("Description")" class="" checked="@item.Value("isSelected")" /> @item.Value("Description")</label><br />
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+
+
+                                            @if ((Model.OS != null) && (Model.OS.Count() > 0))
+                                            {
+                                                <div class="row pbrow">
+                                                    <div class="col-xl-4 col-md-4 col-xs-4 col-lg-4" style="display: flex;align-items: flex-start;">
+                                                        <img src="~/img/productbuildericons/os.png" style="width: 40px; margin-right: 20px; margin-top: 10px" align="left" />
+                                                        <span class="pbheading">OS</span>
+                                                    </div>
+                                                    <div class="col-xl-8 col-md-8 col-xs-8 col-lg-8 pbdetailbx">
+                                                        <div class="pblist">
+
+                                                            @foreach (var item in Model.OS.Where(x => x.IsVisible()))
+                                                            {
+                                                                <label><input type="radio" name="OS" value="@item.Value("Description")" class="" checked="@item.Value("isSelected")" /> @item.Value("Description")</label><br />
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                            <hr />
+                                            <h2 class="pbheadingh2">CONNECTIVITY</h2>
+
+                                            @if ((Model.VideoOutput != null) && (Model.VideoOutput.Count() > 0))
+                                            {
+                                                <div class="row pbrow">
+                                                    <div class="col-xl-4 col-md-4 col-xs-4 col-lg-4" style="display: flex;align-items: flex-start;">
+                                                        <img src="~/img/productbuildericons/video-output.png" style="width: 40px; margin-right: 20px; margin-top: 10px" align="left" />
+                                                        <span class="pbheading">Video</span>
+                                                    </div>
+                                                    <div class="col-xl-8 col-md-8 col-xs-8 col-lg-8 pbdetailbx">
+                                                        <div class="pblist">
+                                                            @foreach (var item in Model.VideoOutput.Where(x => x.IsVisible()))
+                                                            {
+                                                                <label><input type="radio" name="VideoOutput" value="@item.Value("Description")" class="" rel="@item.Id" checked="@item.Value("isSelected")" /> @item.Value("Description")</label><br />
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+
+
+                                            <div class="row pbrow">
+                                                @if ((Model.NetworkEthernet != null) && (Model.NetworkType != null))
+                                                {
+                                                    <div class="col-xl-4 col-md-4 col-xs-4 col-lg-4" style="display: flex;align-items: flex-start;">
+                                                        <img src="~/img/productbuildericons/wifi.png" style="width: 40px; margin-right: 20px; margin-top: 10px" align="left" />
+                                                        <span class="pbheading">Network</span>
+                                                    </div>
+                                                }
+
+                                                <div class="col-xl-8 col-md-8 col-xs-8 col-lg-8 pbdetailbx">
+                                                    <div class="pblist">
+                                                        @if ((Model.NetworkEthernet != null) && (Model.NetworkEthernet.Count() > 0))
+                                                        {
+                                                            @foreach (var item in Model.NetworkEthernet.Where(x => x.IsVisible()))
+                                                            {
+                                                                <label><input type="radio" name="NetworkEthernet" value="@item.Value("Description")" class=""  /> @item.Value("Description")</label><br />
+                                                            }
+                                                        }
+
+                                                        @if ((Model.NetworkType != null) && (Model.NetworkType.Count() > 0))
+                                                        {
+                                                            @foreach (var item in Model.NetworkType.Where(x => x.IsVisible()))
+                                                            {
+                                                                <label><input type="checkbox" name="NetworkType" value="@item.Value("Description")" rel="@item.Id" class="" checked="@item.Value("isSelected")" /> @item.Value("Description")</label><br />
+                                                            }
+                                                        }
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            @if ((Model.USB != null) && (Model.USB.Count() > 0))
+                                            {
+                                                <div class="row pbrow">
+                                                    <div class="col-xl-4 col-md-4 col-xs-4 col-lg-4" style="display: flex;align-items: flex-start;">
+                                                        <img src="~/img/productbuildericons/usb.png" style="width: 40px; margin-right: 20px; margin-top: 10px" align="left" />
+                                                        <span class="pbheading">USB</span>
+                                                    </div>
+                                                    <div class="col-xl-8 col-md-8 col-xs-8 col-lg-8 pbdetailbx">
+                                                        <div class="pblist">
+                                                            @foreach (var item in Model.USB.Where(x => x.IsVisible()))
+                                                            {
+                                                                <label>
+                                                                    @item.Value("Description")
+                                                                    <br />
+                                                                    <input type="radio" name="USB" value="@item.Value("Description")" class="" />
+                                                                </label>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                            @if ((Model.RS232 != null) && (Model.RS232.Count() > 0))
+                                            {
+                                                <div class="row pbrow">
+                                                    <div class="col-xl-4 col-md-4 col-xs-4 col-lg-4" style="display: flex;align-items: flex-start;">
+                                                        <img src="~/img/productbuildericons/rs232.png" style="width: 40px; margin-right: 20px; margin-top: 10px" align="left" />
+                                                        <span class="pbheading">RS232</span>
+                                                    </div>
+                                                    <div class="col-xl-8 col-md-8 col-xs-8 col-lg-8 pbdetailbx">
+                                                        <div class="pblist">
+                                                            @foreach (var item in Model.RS232.Where(x => x.IsVisible()))
+                                                            {
+                                                                <label>
+                                                                    @item.Value("Description")
+                                                                    <br />
+                                                                    <input type="radio" name="RS232" value="@item.Value("Description")" class=""  />
+                                                                </label>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+
+
+                                            @if ((Model.PowerInput != null) && (Model.PowerInput.Count() > 0))
+                                            {
+                                                <div class="row pbrow">
+                                                    <div class="col-xl-4 col-md-4 col-xs-4 col-lg-4" style="display: flex;align-items: flex-start;">
+                                                        <img src="~/img/productbuildericons/Power-Input.png" style=" width: 40px; margin-right: 20px; margin-top: 10px" align="left" />
+                                                        <span class="pbheading">POWER INPUT</span>
+                                                    </div>
+                                                    <div class="col-xl-8 col-md-8 col-xs-8 col-lg-8 pbdetailbx">
+                                                        <div class="pblist">
+                                                            @foreach (var item in Model.PowerInput.Where(x => x.IsVisible()))
+                                                            {
+                                                                <label><input type="radio" name="PowerInput" value="@item.Value("Description")" class=""  /> @item.Value("Description")</label><br />
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+
+                                            <hr />
+                                            <h2 class="pbheadingh2">ENVIRONMENTAL</h2>
+                                            
+                                            @if ((Model.Mounting != null) && (Model.Mounting.Count() > 0))
+                                            {
+                                                <div class="row pbrow">
+                                                    <div class="col-xl-4 col-md-4 col-xs-4 col-lg-4" style="display: flex;align-items: flex-start;">
+                                                        <img src="~/img/productbuildericons/stainless.png" style="width: 40px; margin-right: 20px; margin-top: 10px" align="left" />
+                                                        <span class="pbheading">Material</span>
+                                                    </div>
+                                                    <div class="col-xl-8 col-md-8 col-xs-8 col-lg-8 pbdetailbx">
+                                                        <div class="pblist">
+
+                                                            @foreach (var item in Model.Mounting.Where(x => x.IsVisible()))
+                                                            {
+                                                                <label><input type="radio" name="Mounting" value="@item.Value("Description")" class="" checked="@item.Value("isSelected")" /> @item.Value("Description")</label><br />
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+
+                                            @if ((Model.Stainless != null) && (Model.Stainless.Count() > 0))
+                                            {
+                                                <div class="row pbrow">
+                                                    <div class="col-xl-4 col-md-4 col-xs-4 col-lg-4" style="display: flex;align-items: flex-start;">
+                                                        <img src="~/img/productbuildericons/stainless.png" style="width: 40px; margin-right: 20px; margin-top: 10px" align="left" />
+                                                        <span class="pbheading">Material</span>
+                                                    </div>
+                                                    <div class="col-xl-8 col-md-8 col-xs-8 col-lg-8 pbdetailbx">
+                                                        <div class="pblist">
+
+                                                            @foreach (var item in Model.Stainless.Where(x => x.IsVisible()))
+                                                            {
+                                                                <label><input type="radio" name="Stainless" value="@item.Value("Description")" class="" checked="@item.Value("isSelected")" /> @item.Value("Description")</label><br />
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+
+                                            @if ((Model.Finish != null) && (Model.Finish.Count() > 0))
+                                            {
+                                                <div class="row pbrow">
+                                                    <div class="col-xl-4 col-md-4 col-xs-4 col-lg-4" style="display: flex;align-items: flex-start;">
+                                                        <img src="~/img/productbuildericons/finish.png" style="width: 40px; margin-right: 20px; margin-top: 10px" align="left" />
+                                                        <span class="pbheading">Finish</span>
+                                                    </div>
+                                                    <div class="col-xl-8 col-md-8 col-xs-8 col-lg-8 pbdetailbx">
+                                                        <div class="pblist">
+                                                            @foreach (var item in Model.Finish.Where(x => x.IsVisible()))
+                                                            {
+                                                                <label><input type="radio" name="Finish" value="@item.Value("Description")" class="" checked="@item.Value("isSelected")" /> @item.Value("Description")</label><br />
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+
+
+                                        </div>
+                                        <div class="col-xl-6 col-md-6 col-xs-12 col-sm-12 col-lg-6 col-12">
+                                            <br />
+                                            <div style="display: flex; align-items: flex-end; justify-content: center; ">
+                                                <div>
+                                                    @if (Model.CoverPhoto != null)
+                                                    {
+                                                        <img src="@Model.CoverPhoto.GetCropUrl(width: 120, height: 120, quality:80, furtherOptions: "&format=webp")" alt="@Model.Name" title="@Model.Name" style="width:120px" />
+                                                    }
+
+                                                </div>
+                                                <div>
+                                                    @if (screenno == "")
+                                                    {
+                                                        <div class="text-center screensizeoopt" style="color:navy">
+                                                            <h4>Select screen size to see model number.</h4>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="pbheading2" id="txtmodelno" style="font-weight:bold">
+                                                            <ul>
+
+
+                                                                @if (producttype == "Touch Computer")
+                                                                {
+                                                                    <li>@modelno-</li>
+                                                                }
+                                                                else if (producttype == "Monitor")
+                                                                {
+                                                                    <li>@modelno-M</li>
+                                                                }
+                                                                else if (producttype == "Computer")
+                                                                {
+                                                                    <li>@Model.ModelNumber-</li>
+                                                                }
+                                                                @if (producttype != "Monitor")
+                                                                {
+                                                                    <li id="id_pbprocessor"></li>
+                                                                }
+                                                                <li>-</li>
+                                                                <li id="id_pbtouchtype"></li>
+                                                                @if (Model.OptionalTypes != null)
+                                                                {
+                                                                    foreach (var str in Model.OptionalTypes)
+                                                                    {
+                                                                        <li style="display:none" id="optopms-@str.ToString().Split('-').First().Trim()">-@str.ToString().Split('-').First()</li>
+                                                                    }
+                                                                }
+                                                            </ul>
+
+                                                            <div style="display:none" id="hidemodelno"></div>
+                                                        </div>
+                                                    }
+                                                    <span style="font-size:20px; font-weight:bold" id="id_cpu"></span>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="pbformbox">
+                                                <div class="pbconfigbox" id="pbconfigbox">
+
+
+
+
+                                                    @if ((Model.ScreenBrightness != null) && (Model.ScreenBrightness.Count() > 0))
+                                                    {
+                                                        <div class="pbconfigitem">
+                                                            <div class="pbconfigitemleft">Screen Brightness:</div>
+                                                            <div id="id_ScreenBrightness" class="pbconfigitemright">&nbsp; </div>
+                                                        </div>
+                                                    }
+                                                    @if ((Model.RAM != null) && (Model.RAM.Count() > 0))
+                                                    {
+                                                        <div class="pbconfigitem">
+                                                            <div class="pbconfigitemleft">RAM:</div>
+                                                            <div id="id_RAM" class="pbconfigitemright">&nbsp;</div>
+                                                        </div>
+                                                    }
+                                                    @if ((Model.SSD != null) && (Model.SSD.Count() > 0))
+                                                    {
+                                                        <div class="pbconfigitem">
+                                                            <div class="pbconfigitemleft">SSD:</div>
+                                                            <div id="id_SSD" class="pbconfigitemright">&nbsp;</div>
+                                                        </div>
+                                                    }
+                                                    @if ((Model.OS != null) && (Model.OS.Count() > 0))
+                                                    {
+                                                        <div class="pbconfigitem">
+                                                            <div class="pbconfigitemleft">OS:</div>
+                                                            <div id="id_OS" class="pbconfigitemright">&nbsp;</div>
+                                                        </div>
+                                                    }
+
+                                                    @if ((Model.VideoOutput != null) && (Model.VideoOutput.Count() > 0))
+                                                    {
+                                                        @foreach (var item in Model.VideoOutput.Where(x => x.IsVisible()))
+                                                        {
+
+                                                            <div class="pbconfigitem videooutputopt" id="videooutput_@item.Id">
+                                                                <div class="pbconfigitemleft">Video Output:</div>
+                                                                <div class="pbconfigitemright id_VideoOutput">@item.Value("Description") &nbsp;</div>
+                                                            </div>
+                                                        }
+                                                    }
+
+                                                    @if ((Model.ModelType != null) && (Model.ModelType.Count() > 0))
+                                                    {
+                                                        @foreach (var item in Model.ModelType.Where(x => x.IsVisible()))
+                                                        {
+
+                                                            <div class="pbconfigitem modeltypeopt" id="modeltype_@item.Id">
+                                                                <div class="pbconfigitemleft">Model Type:</div>
+                                                                <div class="pbconfigitemright id_ModelType">@item.Value("Description") &nbsp;</div>
+                                                            </div>
+                                                        }
+                                                    }
+
+
+                                                    @if ((kvmextendertype != null))
+                                                    {
+                                                        foreach (var item in kvmextendertype)
+                                                        {
+                                                            <div class="pbconfigitem kvmextendertypeopt" id="kvmextendertype_@item.Id">
+                                                                <div class="pbconfigitemleft">KVM Extender Type:</div>
+                                                                <div class="pbconfigitemright id_KVMExterderType">@item.Value("Description") &nbsp;</div>
+                                                            </div>
+                                                        }
+                                                    }
+                                                    @if ((Model.NetworkEthernet != null) && (Model.NetworkEthernet.Count() > 0))
+                                                    {
+                                                        <div class="pbconfigitem">
+                                                            <div class="pbconfigitemleft">Network:</div>
+                                                            <div id="id_NetworkEthernet" class="pbconfigitemright">8GB</div>
+                                                        </div>
+                                                    }
+                                                    @if ((Model.NetworkType != null) && (Model.NetworkType.Count() > 0))
+                                                    {
+                                                        @foreach (var item in Model.NetworkType.Where(x => x.IsVisible()))
+                                                        {
+
+                                                            <div class="pbconfigitem networkopt" id="network_@item.Id">
+                                                                <div class="pbconfigitemleft">Network:</div>
+                                                                <div class="pbconfigitemright id_NetworkOpt">@item.Value("Description") &nbsp;</div>
+                                                            </div>
+                                                        }
+                                                    }
+
+                                                    @if ((Model.USB != null) && (Model.USB.Count() > 0))
+                                                    {
+                                                        <div class="pbconfigitem">
+                                                            <div class="pbconfigitemleft">USB:</div>
+                                                            <div id="id_USB" class="pbconfigitemright">&nbsp;</div>
+                                                        </div>
+                                                    }
+                                                    @if ((Model.RS232 != null) && (Model.RS232.Count() > 0))
+                                                    {
+                                                        <div class="pbconfigitem">
+                                                            <div class="pbconfigitemleft">RS232:</div>
+                                                            <div id="id_RS232" class="pbconfigitemright">&nbsp;</div>
+                                                        </div>
+                                                    }
+                                                    @if ((Model.PowerInput != null) && (Model.PowerInput.Count() > 0))
+                                                    {
+                                                        <div class="pbconfigitem">
+                                                            <div class="pbconfigitemleft">Power Input:</div>
+                                                            <div id="id_PowerInput" class="pbconfigitemright">&nbsp;</div>
+                                                        </div>
+                                                    }
+                                                    @if ((Model.Mounting != null) && (Model.Mounting.Count() > 0))
+                                                    {
+                                                        <div class="pbconfigitem">
+                                                            <div class="pbconfigitemleft">Mounting:</div>
+                                                            <div id="id_Mounting" class="pbconfigitemright">&nbsp;</div>
+                                                        </div>
+                                                    }
+                                                    @if ((Model.Stainless != null) && (Model.Stainless.Count() > 0))
+                                                    {
+                                                        <div class="pbconfigitem">
+                                                            <div class="pbconfigitemleft">Grade:</div>
+                                                            <div id="id_Stainless" class="pbconfigitemright">&nbsp;</div>
+                                                        </div>
+                                                    }
+                                                    @if ((Model.Finish != null) && (Model.Finish.Count() > 0))
+                                                    {
+                                                        <div class="pbconfigitem">
+                                                            <div class="pbconfigitemleft">Finish:</div>
+                                                            <div id="id_Finish" class="pbconfigitemright">&nbsp;</div>
+                                                        </div>
+                                                    }
+
+                                                    <div style="clear:both"></div>
+
+                                                </div>
+                                                <div style="clear:both"></div>
+                                                <br />
+                                                
+                                                <p style="margin-left:10px">
+                                                    <h3>Request a Quick Quote</h3><br />
+                                                    Please complete the section below and we will send you a quote or if needed,<br />
+                                                    we will get in contact with you for more information, as quickly as we possibly can.
+                                                </p>
+                                                <div class="contact-form">
+                                                    @{ await Html.RenderPartialAsync("Partials/ProductInquiry", new ContactFromVM(){
+                                                        Threshold = threshold,
+                                                    }); }
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+
+                                    }
+
+
+                                </div>
+
+                            </div>
+                            <div class="ps-tab" id="tab-4">
+                                <div class="">
+                                    <div class="row">
+                                       @if (Model.AccessoryProduct != null){
+                                            foreach (Product product in Model.AccessoryProduct)
+                                            {
+                                                var ps = product.Value<IPublishedContent>("CoverPhoto");
+                                                <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12 col-lg-3">
+                                                    <div class="ps-product2">
+                                                        <div class="ps-product__container">
+                                                            <div class="ps-product__content">
+                                                                <a class="ps-product__title" href="javascript:;">@product.ProductName</a>
+                                                            </div>
+                                                        </div>
+                                                        <div class="ps-product__thumbnail">
+                                                            @if (ps != null)
+                                                            {
+                                                                <a href="javascript:;"><img src="@ps.GetCropUrl(quality:80, furtherOptions: "&format=webp")" alt="@product.Name" title="@product.Name"/></a>
+                                                            }
+
+                                                        </div>
+                                                        <div class="ps-product__descr">
+                                                            @product.ProductName
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ps-tab" id="tab-5">
+                                <div class="row">
+                                    @if (Model.SimilarProductPicker != null)
+                                    {
+                                        foreach (Product product in Model.SimilarProductPicker)
+                                        {
+                                            var ps = product.Value<IPublishedContent>("CoverPhoto");
+                                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12 col-lg-3">
+                                                <div class="ps-product2">
+                                                    <div class="ps-product__container">
+                                                        <div class="ps-product__content">
+                                                            <a class="ps-product__title" href="@product.Url()">@product.ProductName</a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ps-product__thumbnail">
+                                                        @if (ps != null)
+                                                        {
+                                                            <a href="@product.Url()"><img src="@ps.GetCropUrl(quality:80, furtherOptions: "&format=webp")" alt="@product.Name" title="@product.Name"/></a>}
+
+                                                    </div>
+                                                    <div class="ps-product__descr">
+                                                        @product.ProductName
+                                                    </div>
+                                                </div>
+                                            </div>}
+                                    }
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ps-page__right2">
+             @if (producttype != "Accessory")
+                                                                {
+                <aside class="widget widget_same-brand">
+                    <div class="screensizebox  visible" > 
+                        <div class="btnscreensizes" style="background-blend-mode: normal;"><a href="#" style="display: block; width: 100%; height: 100%; ">Screen Sizes</a></div>
+                        <div>
+                            @if ((Model.ScreenSizes != null) && (Model.ScreenSizes.Count() > 0))
+                            {
+                                @await Html.PartialAsync("~/Views/Partials/Navigation/GetScreenSizesModel.cshtml", Model.ScreenSizes)
+                                                                                                                                                                                                }
+                            else
+                            {
+                                @await Html.PartialAsync("~/Views/Partials/Navigation/GetScreenSizes.cshtml")
+                                                                                                    }
+
+                        </div>
+                    </div>
+                </aside>}
+            </div>
+
+        </div>
+
+    </div>
+</div>
+@section footerscript{
+    <script>
+        let str__screentype = "";
+        let str__screenbrightness = "";
+        let str__cpu = "";
+        let str__ram = "";
+        let str__ssd = "";
+        let str__os = "";
+        let str__videooutput = ""; //?
+        let str__modeltype = "";
+        let str__kvmexterdertype = "";
+
+        let str__modeltypev = "";
+        let str__kvmexterdertypev = "";
+
+        let str__networkethernet = "";
+        let str__networktype = "";//?
+        let str__usb = "";
+        let str__rs232 = "";
+        let str__powerinput = "";
+        let str__mounting = "";
+        let str__stainless = "";
+        let str__finish = "";
+        let str__modelname = "";
+
+        $(document).ready(function () {
+            $(".modeltypeopt").hide();
+            $(".kvmextendertypeopt").hide();
+
+            $("input:radio[name=NetworkEthernet]:first").attr('checked', true);
+            $("input:radio[name=USB]:first").attr('checked', true);
+            $("input:radio[name=RS232]:first").attr('checked', true);
+            $("input:radio[name=PowerInput]:first").attr('checked', true);
+             $("input:radio[name=Mounting]:first").attr('checked', true);
+
+            var screentype = $("input:radio[name=ScreenType]:checked");
+            var ScreenBrightness = $("input:radio[name=ScreenBrightness]:checked");
+            var CPU = $("input:radio[name=CPU]:checked");
+            var RAM = $("input:radio[name=RAM]:checked");
+            var SSD = $("input:radio[name=SSD]:checked");
+            var OS = $("input:radio[name=OS]:checked");
+            var VideoOutput = $("input:checkbox[name=VideoOutput]");
+            var ModelType = $("input:checkbox[name=ModelType]");
+            var KVMExterderType = $("input:checkbox[name=KVMExtender]");
+            var NetworkEthernet = $("input:radio[name=NetworkEthernet]:checked");
+            var NetworkType = $("input:checkbox[name=NetworkType]");
+            var USB = $("input:radio[name=USB]:checked");
+            var RS232 = $("input:radio[name=RS232]:checked");
+            var PowerInput = $("input:radio[name=PowerInput]:checked");
+            var Mounting = $("input:radio[name=Mounting]:checked");
+            var Stainless = $("input:radio[name=Stainless]:checked");
+            var Finish = $("input:radio[name=Finish]:checked");
+
+            $(screentype).attr('checked', true);
+           // $(ScreenBrightness).attr('checked', true);
+           // $(CPU).attr('checked', true);
+            $(RAM).attr('checked', true);
+            $(SSD).attr('checked', true);
+            $(OS).attr('checked', true);
+         //   $(VideoOutput).attr('checked', true);
+            //$(ModelType).attr('checked', true);
+            //$(KVMExterderType).attr('checked', true);
+            $(NetworkEthernet).attr('checked', true);
+          //  $(NetworkType).attr('checked', true);
+            $(USB).attr('checked', true);
+            $(RS232).attr('checked', true);
+            $(PowerInput).attr('checked', true);
+            $(Mounting).attr('checked', true);
+            $(Stainless).attr('checked', true);
+            $(Finish).attr('checked', true);
+
+            $("#id_RAM").text($(RAM).val());
+            $("#id_ScreenBrightness").text($(ScreenBrightness).val());
+            $("#id_cpu").text($(CPU).val());
+            $("#id_pbprocessor").text($(CPU).attr("rel"));
+            $("#id_pbtouchtype").text($(screentype).attr("rel").replace(" ", ""));
+            $("#id_SSD").text($(SSD).val());
+            $("#id_OS").text($(OS).val());
+            $("#id_VideoOutput").text($(VideoOutput).val());
+            //$("#id_ModelType").text($(ModelType).val());
+            //$("#id_KVMExterderType").text($(KVMExterderType).val());
+            $("#id_NetworkEthernet").text($(NetworkEthernet).val());
+            $("#id_USB").text($(USB).val());
+            $("#id_RS232").text($(RS232).val());
+            $("#id_PowerInput").text($(PowerInput).val());
+            $("#id_Mounting").text($(Mounting).val());
+            $("#id_Stainless").text($(Stainless).val());
+            $("#id_Finish").text($(Finish).val());
+
+
+            //  $("#txtmodelno").text($("#txtmodelno").text().replace(/ /g, '').replace(' ',''));
+            str__modelname = $("#txtmodelno").html();
+            str__screentype = $(screentype).attr("rel");
+            str__screenbrightness = $(ScreenBrightness).val();
+            str__cpu = $(CPU).val();
+
+            str__ram = $(RAM).val();
+            str__ssd = $(SSD).val();
+            str__os = $(OS).val();
+           // str__videooutput = $(VideoOutput).val();
+            //str__modeltype = $(ModelType).val();
+            //str__kvmexterdertype = $(KVMExterderType).val();
+            str__networkethernet = $(NetworkEthernet).val();
+            //  str__networktype = $(networktype).val();
+            str__usb = $(USB).val();
+            str__rs232 = $(RS232).val();
+            str__powerinput = $(PowerInput).val();
+            str__mounting = $(Mounting).val();
+            str__stainless = $(Stainless).val();
+            str__finish = $(Finish).val();
+
+
+            $('input[name=VideoOutput]').each(function () {
+                   var netid = $(this).attr("rel");
+                    if (this.checked) {
+                        //alert($(this).val());
+                        $("#videooutput_" + netid).show();
+                        str__videooutput += $(this).val() + ", ";
+                    } else {
+                        $("#videooutput_" + netid).hide();
+                    }
+            });
+
+
+
+            $('input[name=NetworkType]').each(function () {
+                   var netid = $(this).attr("rel");
+                    if (this.checked) {
+                        //alert($(this).val());
+                        $("#network_" + netid).show();
+                        str__networktype += $(this).val() + ", ";
+                    } else {
+                        $("#network_" + netid).hide();
+                    }
+            });
+
+            $('input[name=ModelType]').each(function () {
+              
+                    var netid = $(this).attr("rel");
+                    var mtval = $(this).attr("data-val");
+                    if (this.checked) {
+                        //alert($(this).val());
+                        $("#modeltype_" + netid).show();
+                        $("#optopms-" + mtval).show();
+                        str__modeltype += $(this).val() + ", ";
+                        str__modeltypev = mtval + "-";
+                    } else {
+                        $("#modeltype_" + netid).hide();
+                        $("#optopms-" + mtval).hide();
+                        str__modeltypev = "";
+                    }
+                    str__modelname = $("#txtmodelno").html();
+            });
+
+            $('input[name=KVMExtender]').each(function () {
+                  var netid = $(this).attr("rel");
+                    var mtval = $(this).attr("data-val");
+
+                    if (this.checked) {
+                        //alert($(this).val());
+                        $("#kvmextendertype_" + netid).show();
+                        $("#optopms-" + mtval).show();
+                        str__kvmexterdertype += $(this).val() + ", ";
+                        str__kvmexterdertypev = mtval + "-";
+                    } else {
+                        $("#kvmextendertype_" + netid).hide();
+                        $("#optopms-" + mtval).hide();
+                        str__kvmexterdertypev = "";
+                    }
+                    str__modelname = $("#txtmodelno").html();
+            });
+
+            ProductEnquiry();
+            $('input[type="radio"]').on('click change', function (e) {
+
+                if ($(this).attr('name') == "ScreenType") {
+                    $("#id_pbtouchtype").text($(this).attr("rel").replace(" ", ""));
+                    str__screentype = $(this).attr("rel");
+                }
+
+                if ($(this).attr('name') == "CPU") {
+                    $("#id_cpu").text($(this).val());
+                    $("#id_pbprocessor").text($(this).attr("rel"));
+                    str__cpu = $(this).attr("rel");
+                }
+                if ($(this).attr('name') == "ScreenBrightness") {
+                    $("#id_ScreenBrightness").text($(this).val());
+                    str__screenbrightness = $(this).val();
+                }
+                if ($(this).attr('name') == "RAM") {
+                    $("#id_RAM").text($(this).val());
+                    str__ram = $(this).val();
+                }
+
+                if ($(this).attr('name') == "SSD") {
+                    $("#id_SSD").text($(this).val());
+                    str__ssd = $(this).val();
+                }
+
+                if ($(this).attr('name') == "OS") {
+                    $("#id_OS").text($(this).val());
+                    str__os = $(this).val();
+                }
+
+                if ($(this).attr('name') == "NetworkEthernet") {
+                    $("#id_NetworkEthernet").text($(this).val());
+                    str__networkethernet = $(this).val();
+                }
+
+                if ($(this).attr('name') == "USB") {
+                    $("#id_USB").text($(this).val());
+                    str__usb = $(this).val();
+                }
+
+                if ($(this).attr('name') == "RS232") {
+                    $("#id_RS232").text($(this).val());
+                    str__rs232 = $(this).val();
+                }
+
+                if ($(this).attr('name') == "PowerInput") {
+                    $("#id_PowerInput").text($(this).val());
+                    str__powerinput = $(this).val();
+                }
+
+                if ($(this).attr('name') == "Mounting") {
+                    $("#id_Mounting").text($(this).val());
+                    str__Mounting = $(this).val();
+                }
+                
+                if ($(this).attr('name') == "Stainless") {
+                    $("#id_Stainless").text($(this).val());
+                    str__stainless = $(this).val();
+                }
+                if ($(this).attr('name') == "Finish") {
+                    $("#id_Finish").text($(this).val());
+                    str__finish = $(this).val();
+                }
+
+                ProductEnquiry();
+            });
+            $('input[type="checkbox"]').on('click', function (e) {
+                str__networktype = "";
+                str__videooutput = "";
+                str__modeltype = "";
+                str__kvmexterdertype = "";
+                str__modeltypev = "";
+                str__kvmexterdertypev = "";
+                $('input[name=NetworkType]').each(function () {
+                    var netid = $(this).attr("rel");
+                    if (this.checked) {
+                        //alert($(this).val());
+                        $("#network_" + netid).show();
+                        str__networktype += $(this).val() + ", ";
+                    } else {
+                        $("#network_" + netid).hide();
+                    }
+                });
+
+                $('input[name=VideoOutput]').each(function () {
+                    var netid = $(this).attr("rel");
+                    if (this.checked) {
+                        //alert($(this).val());
+                        $("#videooutput_" + netid).show();
+                        str__videooutput += $(this).val() + ", ";
+
+                    } else {
+                        $("#videooutput_" + netid).hide();
+                    }
+                });
+
+                $('input[name=ModelType]').each(function () {
+                    var netid = $(this).attr("rel");
+                    var mtval = $(this).attr("data-val");
+                    if (this.checked) {
+                        //alert($(this).val());
+                        $("#modeltype_" + netid).show();
+                        $("#optopms-" + mtval).show();
+                        str__modeltype += $(this).val() + ", ";
+                        str__modeltypev = mtval + "-";
+                    } else {
+                        $("#modeltype_" + netid).hide();
+                        $("#optopms-" + mtval).hide();
+                        str__modeltypev = "";
+                    }
+                    str__modelname = $("#txtmodelno").html();
+                });
+
+
+                $('input[name=KVMExtender]').each(function () {
+                    var netid = $(this).attr("rel");
+                    var mtval = $(this).attr("data-val");
+
+                    if (this.checked) {
+                        //alert($(this).val());
+                        $("#kvmextendertype_" + netid).show();
+                        $("#optopms-" + mtval).show();
+                        str__kvmexterdertype += $(this).val() + ", ";
+                        str__kvmexterdertypev = mtval + "-";
+                    } else {
+                        $("#kvmextendertype_" + netid).hide();
+                        $("#optopms-" + mtval).hide();
+                        str__kvmexterdertypev = "";
+                    }
+                    str__modelname = $("#txtmodelno").html();
+                });
+                ProductEnquiry()
+            });
+
+        });
+
+        function ProductEnquiry() {
+            var productenq = "";
+            var modelnumb = "";
+            //$("#hidemodelno").html($("#txtmodelno").html);
+            //var modelul = $("#hidemodelno");
+          //  modelul.find('li[style="display:none"]').remove();
+
+            @if (producttype == "Touch Computer")
+            {
+            <text>modelnumb += '@modelno-';</text>
+           }
+           else if (producttype == "Monitor")
+           {
+           <text>modelnumb += '@modelno-M';</text>
+            }
+            else if (producttype == "Computer")
+            {
+                  <text>modelnumb += '@Model.ModelNumber-';</text>
+            }
+
+            
+            modelnumb += $("#id_pbprocessor").text();
+            modelnumb += '-';
+            modelnumb += $("#id_pbtouchtype").text();
+            modelnumb += '-';
+            modelnumb += str__modeltypev;
+            modelnumb += str__kvmexterdertypev;
+
+
+            productenq += "<br> Model : " + modelnumb;
+            productenq += "<br> Screen type : " + str__screentype;
+            productenq += "<br> Screen brightness : " + str__screenbrightness;
+            productenq += "<br> CPU : " + str__cpu;
+
+            productenq += "<br> RAM : " + str__ram;
+            productenq += "<br> SSD : " + str__ssd;
+            productenq += "<br> OS : " + str__os;
+            productenq += "<br> Video Output : " + str__videooutput;
+            productenq += "<br> Model Type : " + str__modeltype;
+            productenq += "<br> KVM Extender : " + str__kvmexterdertype;
+            productenq += "<br> Network : " + str__networkethernet;
+            productenq += "<br> Network : " + str__networktype;
+            productenq += "<br> USB : " + str__usb;
+            productenq += "<br> RS232 : " + str__rs232;
+            productenq += "<br> Power Input : " + str__powerinput;
+            productenq += "<br> Mounting : " + str__mounting;
+            productenq += "<br> Stainless : " + str__stainless;
+            productenq += "<br> Finish : " + str__finish;
+
+
+
+            document.getElementById("ProductEnquiry").value = productenq;
+        }
+    </script>
+}
+

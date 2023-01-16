@@ -1,0 +1,89 @@
+﻿@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using Umbraco.Extensions
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Blogpost>
+@{ Layout = "master.cshtml";
+
+    var featuredimage = Model.Value<IPublishedContent>("featuredImage");
+    var herobackground = "";
+   if (Model.Value("heroBackground") != null)
+                    {
+                         if (Model.Value<IPublishedContent>("heroBackground") != null)
+                                            {
+                        herobackground = Model.Value<IPublishedContent>("heroBackground").Url();
+                                            }
+                    }
+
+
+    }
+
+
+
+@section Header{
+@if(!string.IsNullOrEmpty(herobackground))
+{
+
+    <style>
+    #headerimage{
+        background-image:url(@herobackground) !important
+    }
+    </style>
+}
+
+<style>
+h3.bannerheading2 {
+    font-size: 11rem;
+    max-width: 800px;
+    top: 60%;
+    font-family: 'Teko', sans-serif;
+}
+
+
+</style>
+}
+
+@section BannerText{
+    <h1 class="bannerheading2">
+       News
+    </h1>
+}
+<input type="hidden" name="currentpageid" id="currentpageid" value="@Model.Id" />
+
+<div class="ps-product-list ps-product-list--2">
+    <div class="container">
+
+
+        <div class="ps-section__content ">
+           
+
+            <div class="">
+
+<article style="margin:20px 20px" class="blogpostpage">
+    <div class="blogpost-meta">
+        <small class="blogpost-date">@Model.CreateDate.ToLongDateString()</small>
+        @*<br />  <span class="blogpost-cat">
+                @Html.Partial("~/Views/Partials/CategoryLinks.cshtml", Model.Categories)
+            </span>*@
+    </div>
+    <h3>@Model.Excerpt</h3>
+    @if (featuredimage != null)
+    {
+}
+
+    @Html.GetGridHtml(Model, "bodyText", "bootstrap3-fluid")
+    <br />
+    <button class="backbtn" onclick="history.back()">Go Back</button>
+
+    <!-- todo: implement discus comments -->
+</article>
+
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+

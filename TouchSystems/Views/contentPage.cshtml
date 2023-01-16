@@ -1,0 +1,55 @@
+﻿@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@using Umbraco.Extensions
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.ContentPage>
+@{ Layout = "master.cshtml";;
+var herobackground = "";
+   if (Model.Value("heroBackground") != null)
+                    {
+                         if (Model.Value<IPublishedContent>("heroBackground") != null)
+                                            {
+                        herobackground = Model.Value<IPublishedContent>("heroBackground").Url();
+                                            }
+                    }
+                   
+}
+
+@section Header{
+
+@if(!string.IsNullOrEmpty(herobackground))
+{
+
+    <style>
+    #headerimage{
+        background-image:url(@herobackground) !important
+    }
+    </style>
+
+}
+}
+
+@section BannerText{
+            <h1>@Model.PageTitle</h1>
+}
+<input type="hidden" name="currentpageid" id="currentpageid" value="@Model.Id" />
+<div class="ps-product-list ps-product-list--2">
+    <div class="container">
+
+
+        <div class="ps-section__content ">
+            <br />
+            <div class="row">
+                <div class="col-md-1">
+
+                </div>
+                <div class="col-md-10">
+                   
+                    <article class="contentpage">
+                        @Html.GetGridHtml(Model, "bodyText", "bootstrap3-fluid")
+                    </article>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>

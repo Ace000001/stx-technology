@@ -1,0 +1,62 @@
+﻿@inherits UmbracoViewPage
+@using System.Globalization
+@using System.Web
+@using System.Xml
+
+@functions{
+    public static string Country(string code, string culture)
+    {
+        // Get the Two Letter ISO Language Name from passed in culture
+        var locale = new CultureInfo(culture).TwoLetterISOLanguageName.ToLower();
+        // Create a path to the cultures resx xml file
+        var strLocalXmlFile = HttpContext.Current.Server.MapPath("/data/localisation/" + locale + ".xml");
+        // Create a new XmlDocument
+        var xdoc = new XmlDocument();
+        // Load the stored XML file
+        xdoc.Load(strLocalXmlFile);
+        // Create a path to the language node
+        var node = "//language[@type='" + code + "']";
+        // Get the node
+        var xn = xdoc.SelectSingleNode(node);
+        // Return the value from the node
+        return xn?.InnerText ?? string.Empty;
+    }
+}
+
+@helper CurrentCultureMarkup()
+{
+<span class="flag-icon flag-icon-@Model.GetCultureFromDomains().Substring(3, 2)"></span>
+@Country(Model.GetCultureFromDomains().Substring(0, 2), Model.GetCultureFromDomains())
+@(Model.GetCultureFromDomains().Contains("US") ? "(US)" : "")
+@(Model.GetCultureFromDomains().Contains("GB") ? "(GB)" : "")
+}
+
+<li class="nav-item dropdown move-to-top" id="language-dropdown">
+    @if (Model.Cultures.Count == 1)
+    {
+        <span class="nav-link">
+            @CurrentCultureMarkup()
+        </span>
+    }
+    else
+    {
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            @CurrentCultureMarkup()
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            @foreach (var (culture, infos) in Model.Cultures)
+            {
+                var currentCulture = Model.GetCultureFromDomains();
+                if (currentCulture.ToLower() != culture)
+                {
+                    <a class="dropdown-item" href="@Model.Url(culture)">
+                        <span class="flag-icon flag-icon-@infos.Culture.Substring(3, 2)"></span>
+                        @Country(infos.Culture.Substring(0, 2), Model.GetCultureFromDomains())
+                        @(infos.Culture.Contains("us") ? "(US)" : "")
+                        @(infos.Culture.Contains("gb") ? "(GB)" : "")
+                    </a>
+                }
+            }
+        </div>
+    }
+</li>

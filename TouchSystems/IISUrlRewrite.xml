@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<rewrite>
+	<rule name="Redirect to www prefix" stopProcessing="true">
+		<match url=".*" />
+		<conditions>
+			<add input="{HTTP_HOST}" pattern="^www\." negate="true" />
+			<add input="{HTTP_HOST}" pattern="^localhost(:[0-9]+)?$" negate="true" />
+			<add input="{HTTP_HOST}" pattern="\.umbraco\.io$" negate="true" />
+		</conditions>
+		<action type="Redirect" url="https://www.{HTTP_HOST}/{R:0}" />
+	</rule>
+</rewrite>

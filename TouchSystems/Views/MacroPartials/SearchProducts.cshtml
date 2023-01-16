@@ -1,0 +1,112 @@
+﻿@using Microsoft.AspNetCore.Http
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using Umbraco.Cms.Core.Routing
+@using Umbraco.Cms.Web.Common
+@inherits Umbraco.Cms.Web.Common.Macros.PartialViewMacroPage
+@inject UmbracoHelper Umbraco
+@inject IPublishedUrlProvider PublishedUrlProvider
+@inject IHttpContextAccessor HttpContextAccessor
+@{ var productsNodeId = 1098;
+
+    var numberOfProducts = 50; }
+
+@if (productsNodeId != null)
+{
+    var startNode = Umbraco.Content(productsNodeId);
+
+    if (startNode == null)
+    {
+<div class="products">
+    <h3>Error.. Oops! there are no products found.</h3>
+</div> return;
+    }
+
+    var httpContext = HttpContextAccessor.HttpContext;
+    var query = httpContext.Request.Query["q"];
+    var searchquery = "";
+    if (query.ToString().Length > 2)
+    {
+        searchquery = query.ToString().Substring(0, 3).ToLower();
+    }
+    else {
+        searchquery = query.ToString().ToLower();
+    }
+    //Gets all products to calculate pages || x.Value("productName").ToString().ToLower().Contains(query.ToString().ToLower())
+    var products = startNode.Children.Where(x => x.IsVisible() && (x.Value("modelNumber").ToString().ToLower().StartsWith(searchquery))).ToList();
+    var pageCount = (int)Math.Ceiling((double)products.Count / (double)numberOfProducts);
+    //gets the page from the querystring and sets it to one if it is out of range
+    var page = 1;
+    if (httpContext != null && !string.IsNullOrEmpty(httpContext.Request.Query["page"]))
+    {
+        int.TryParse(httpContext.Request.Query["page"], out page);
+        if (page <= 0 || page > pageCount)
+        {
+            page = 1;
+        }
+    }
+    //Gets the products for the current page
+    var pagedproducts = products.Skip((page - 1) * numberOfProducts).Take(numberOfProducts).ToList();
+
+    if (pagedproducts.Count > 0)
+    {
+<div><br /><p>Search terms : @query </p><br /></div>
+                    <div class="row">
+
+                        @foreach (ContentModels.Product prod in pagedproducts)
+                        {
+                            var ps = prod.Value<IPublishedContent>("frontPhoto");
+    <style>
+    #ps-@prod.Id:after {
+        content: '@prod.ModelNumber';
+    }
+     #ps-@prod.Id:hover:after {
+        content: '@prod.ModelNumber';
+    }
+    </style>
+    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12 ">
+        <div class="ps-product3" id="ps-@prod.Id">
+            <div class="ps-product__thumbnail imgBx">
+                @if (ps != null)
+                {
+    <a href="@prod.Url(PublishedUrlProvider)"><img src="@ps.Url()" alt="@prod.Name()" /></a>}
+
+
+            </div>
+            <div class="contentBx">
+                <a class="ps-product__title" href="@prod.Url(PublishedUrlProvider)">@prod.Name()</a>
+            </div>
+        </div>
+    </div>}
+                    </div> }
+                else
+                {
+                    <div class="products">
+                        <h3>Oops! there are no product found.</h3>
+                    </div>
+                }
+                if (products.Count > numberOfProducts)
+                {
+<div class="pagination">
+    <nav class="nav-bar nav-bar--center">
+        @if (page <= 1)
+        {
+<span class="nav-link nav-link--black nav-link--disabled">Prev</span> }
+else
+{
+<a class="nav-link nav-link--black" href="@(Model.Content.Url(PublishedUrlProvider) + "?page=" + (page - 1))">Prev</a>}
+
+        @for (int i = 1; i <= pageCount; i++)
+        {
+<a class="nav-link nav-link--black @(page == i ? " nav-link--active" : null)" href="@(Model.Content.Url(PublishedUrlProvider) + "?page=" + i)">@i</a>}
+        @if (page == pageCount)
+        {
+<span class="nav-link nav-link--black nav-link--disabled">Next</span> }
+else
+{
+<a class="nav-link nav-link--black" href="@(Model.Content.Url(PublishedUrlProvider) + "?page=" + (page + 1))">Next</a>}
+
+    </nav>
+</div>}
+}
+

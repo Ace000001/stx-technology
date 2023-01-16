@@ -1,0 +1,152 @@
+﻿@using Umbraco.Cms.Core.Models.PublishedContent
+@using Umbraco.Cms.Core.Routing
+@using Umbraco.Extensions
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{ var site = Model.Root();
+    int[] pageids = new int[] { 1198, 1199, 1201, 1202, 1203, 1204 };
+
+
+    int menuid1 = 1154; //  By Range
+    int menuid2 = 1156; // By Industry
+    int menuid3 = 1174; //  Solutions
+    int menuid4 = 1175; // About Us
+    int menuid5 = 1495; // Contact Us
+                        //  pageids.Contains(x.Id);
+    var menu1 = site.Children.Where(x => x.IsVisible() && x.Id == menuid1).FirstOrDefault();
+    var menu2 = site.Children.Where(x => x.IsVisible() && x.Id == menuid2).FirstOrDefault();
+    var menu3 = site.Children.Where(x => x.IsVisible() && x.Id == menuid3).FirstOrDefault();
+    var menu4 = site.Children.Where(x => x.IsVisible() && x.Id == menuid4).FirstOrDefault();
+    var menu5 = site.Children.Where(x => x.IsVisible() && x.Id == menuid5).FirstOrDefault(); }
+
+
+
+<!--menu2 start-->
+@if (menu1 != null)
+{
+<li class="@(menu1.IsAncestorOrSelf(Model) ? "current_page_item" : null) menu-item-has-children has-mega-menu">
+    <a href="@menu1.Url()">@menu1.Name</a><span class="sub-toggle"></span>
+    <div class="mega-menu">
+
+        @foreach (var subitem in menu1.Children.Where(x => x.IsVisible()))
+        {
+            if (subitem.Value("umbracoNavihide") != null)
+            {
+                if (subitem.Value("umbracoNavihide").ToString() == "False")
+                {
+<div class="mega-menu__column">
+    <h4><a href="@subitem.Url()"><strong>@subitem.Name</strong></a> <span class="sub-toggle"></span></h4>
+    <ul class="mega-menu__list">
+        @if (subitem.Value("catgoryProducts") != null)
+        {
+            foreach (var prod in subitem.Value<IEnumerable<IPublishedContent>>("catgoryProducts"))
+            {
+<li><a href="@prod.Url()">@prod.Value("productName")</a></li> }
+                            } 
+@foreach(var subsubitem in subitem.Children.Where(x => x.IsVisible()))
+{
+if (subsubitem.Value("umbracoNavihide") != null){
+if (subsubitem.Value("umbracoNavihide").ToString() == "False"){
+
+    <li><a href="@subsubitem.Url()">@subsubitem.Name</a></li>
+}
+
+}
+}
+    </ul>
+
+</div>}
+}
+}
+
+
+
+    </div>
+
+</li>} <!--menu1 end-->
+<!--menu2 start-->
+@if (menu2 != null)
+{
+<li class="@(menu2.IsAncestorOrSelf(Model) ? "current_page_item" : null) menu-item-has-children has-mega-menu">
+    <a href="@menu2.Url()">@menu2.Name</a><span class="sub-toggle"></span>
+    <div class="mega-menu">
+
+
+        @foreach (var subitem in menu2.Children.Where(x => x.IsVisible()))
+        {
+            if (subitem.Value("umbracoNavihide") != null)
+            {
+                if (subitem.Value("umbracoNavihide").ToString() == "False")
+                {
+
+<div class="mega-menu__column">
+    <h4><a href="@subitem.Url()"><strong>@subitem.Value("pageTitle")</strong></a> <span class="sub-toggle"></span></h4>
+    <ul class="mega-menu__list">
+        @*//get products start*@
+        @if (subitem.Value("catgoryProducts") != null)
+        {
+            foreach (var prod in subitem.Value<IEnumerable<IPublishedContent>>("catgoryProducts"))
+            {
+<li><a href="@prod.Url()">@prod.Value("productName")</a></li>
+ }
+} @*//get products end*@
+    </ul>
+
+</div>}
+}
+}
+
+
+
+    </div>
+</li>} <!--menu2 end-->
+<!--menu3 end-->
+@if (menu3 != null)
+{
+<li class="@(menu3.IsAncestorOrSelf(Model) ? "current_page_item" : null) menu-item-has-children has-mega-menu">
+    <a href="@menu3.Url()">@menu3.Name</a><span class="sub-toggle"></span>
+    <div class="mega-menu">
+
+
+        @foreach (var subitem in menu3.Children.Where(x => x.IsVisible()))
+        {
+            if (subitem.Value("umbracoNavihide") != null)
+            {
+                if (subitem.Value("umbracoNavihide").ToString() == "False")
+                {
+
+<div class="mega-menu__column">
+    <h4><a href="@subitem.Url()"><strong>@subitem.Name</strong></a> <span class="sub-toggle"></span></h4>
+    <ul class="mega-menu__list">
+        @*//get products start*@
+        @if (subitem.Value("catgoryProducts") != null)
+        {
+            foreach (var prod in subitem.Value<IEnumerable<IPublishedContent>>("catgoryProducts"))
+            {
+<li><a href="@prod.Url()">@prod.Value("productName")</a></li>
+ }
+} @*//get products end*@
+    </ul>
+
+</div>}
+}
+}
+
+
+
+    </div>
+</li>}
+<!--menu3 end-->
+<!--menu4 end-->
+@if (menu4 != null)
+{
+<li class="@(menu4.IsAncestorOrSelf(Model) ? "current_page_item" : null)">
+    <a href="@menu4.Url()">@menu4.Name</a>
+</li>}
+<!--menu4 end-->
+<!--menu5 end-->
+@if (menu5 != null)
+{
+<li class="@(menu5.IsAncestorOrSelf(Model) ? "current_page_item" : null)">
+    <a href="@menu5.Url()">@menu5.Name</a>
+</li>}
+<!--menu5 end-->

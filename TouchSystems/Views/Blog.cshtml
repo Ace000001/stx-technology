@@ -1,0 +1,94 @@
+﻿@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Blog>
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{ Layout = "master.cshtml"; 
+var herobackground = "";
+   if (Model.Value("heroBackground") != null)
+                    {
+                         if (Model.Value<IPublishedContent>("heroBackground") != null)
+                                            {
+                        herobackground = Model.Value<IPublishedContent>("heroBackground").Url();
+                                            }
+    }
+    var lang = !string.IsNullOrEmpty(HttpContextAccessor.HttpContext.Request.Query["language"]) ? HttpContextAccessor.HttpContext.Request.Query["language"].ToString() : "";
+}
+
+@section Header{
+@if(!string.IsNullOrEmpty(herobackground))
+{
+
+    <style>
+    #headerimage{
+        background-image:url(@herobackground) !important
+    }
+    </style>
+}
+}
+
+@section BannerText{
+    <h1 class="bannerheading2">
+        @Model.PageTitle
+    </h1>
+}
+
+<input type="hidden" name="currentpageid" id="currentpageid" value="@Model.Id" />
+<div class="ps-product-list ps-product-list--2">
+    <div class="container">
+
+
+        <div class="ps-section__content ">
+            <div class="row">
+                <div class="col-sm-12 col-12">
+                    <div class="lang-filter">
+                        <h2>Follow us on Linkedln and Twitter</h2>
+                        <div class="ps-dropdown language">
+                            <a class="display" href="@Model.Url()">  <span class="selected-name"></span> </a>
+                            <ul class="ps-dropdown-menu">
+                                <li><a href="@Model.Url()" rel="all"><img style="width:20px; height:20px;" class="all" src="~/media/pvnbhqn0/global.png" alt="flad-global" title="flad-global"> All</a></li>
+                                <li><a href="?language=australia" rel="en-au"><img src="~/img/flag/aus.png" alt="flad-aus" title="flad-aus"> Australia</a></li>
+                                <li><a href="?language=new zealand" rel="en-nz"><img src="~/img/flag/nz.png" alt="flad-nz" title="flad-nz"> New Zealand </a></li>
+                                <li><a href="?language=canada" rel="en-ca"><img src="~/img/flag/cad.png" alt="flad-cad" title="flad-cad"> Canada</a></li>
+                                <li><a href="?language=united states" rel="en-us"><img src="~/img/flag/usa.png" alt="flad-usa" title="flad-usa"> United States</a></li>
+                                <li><a href="?language=united kingdom" rel="en-gb"><img src="~/img/flag/en.png" alt="flad-en" title="flad-en"> United Kingdom</a></li>
+                            </ul>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="">
+                  
+                    
+                        @await Umbraco.RenderMacroAsync("latestBlogposts",
+                                                new
+                                                {
+                                                    numberOfPosts = Model.HowManyPostsShouldBeShown,
+                                                    startNodeId = Model.Id,
+                                                    language = lang,
+                                                })
+                   
+
+                </div>
+
+        </div>
+    </div>
+</div>
+    @section footerscript{
+    <script>
+        $(function () {
+            var selectedItem = $(".lang-filter li a[href='?language=@lang']");
+            var target = $(".display");
+            if(selectedItem.length > 0){
+                target.html(selectedItem.html());
+            }else{
+                var defItem = $(".lang-filter li a[href='@Model.Url()']");
+                target.html(defItem.html());
+            }
+        });
+    </script>
+}
+
+
+

@@ -1,0 +1,54 @@
+﻿@using Umbraco.Cms.Core.Models.PublishedContent
+@using Umbraco.Cms.Core.Routing
+@using Umbraco.Extensions
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{ var site = Model.Root();
+    int ssnode = 1207; //  screen size
+    var ss = site.Children.Where(x => x.IsVisible() && x.Id == ssnode).FirstOrDefault(); }
+<!--ss start-->
+@if (ss != null)
+{
+
+    <div class="dsboxheading" style="display: flex;    width: 169px;    justify-content:space-between;    text-align: center;">
+  <div class="screensizehead" style="padding-top:6px; background-color:#fff; width:71px">
+
+            <span>Standard</span>
+
+        </div>
+
+         <div class="screensizehead" style="padding-top:6px; background-color:#fff; width:89px">
+            <span>Widescreen</span>
+
+        </div>
+</div>
+<div class="dsbox">
+    <div class="text-center" style="padding-left: 0; padding-right:8px; border-right: dashed 1px #333;">
+       
+        @foreach (var item in ss.Children.Where(x => x.IsVisible() && x.Value("aspectRatio").ToString() == "4:3" || x.Value("aspectRatio").ToString() == "5:4"))
+        {
+
+    <div class="screensize43">
+        <a href="?size=@item.Name">
+            <span>@item.Value("screenSizeInch")''</span><br />
+            @item.Value("screenResolution")
+        </a>
+    </div>}
+
+    </div>
+    <div class=" text-center" style="padding-left:8px;">
+       
+        @foreach (var item in ss.Children.Where(x => x.IsVisible() && x.Value("aspectRatio").ToString() == "16:9" || x.Value("aspectRatio").ToString() == "16:10"))
+        {
+    <div class="screensize169">
+        <a href="?size=@item.Name">
+            <span>@item.Value("screenSizeInch")''</span><br />
+            @item.Value("screenResolution")
+        </a>
+    </div>}
+    </div>
+</div>
+<div class="dsboxhead">
+    <span id="dsboxheadblk">Click a Display Size to see details</span>
+</div>
+}
+

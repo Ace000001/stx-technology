@@ -1,0 +1,343 @@
+﻿@using Umbraco.Extensions
+@using Umbraco.Cms.Web.Common.PublishedModels
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Home>
+
+@{ Layout = "master.cshtml";
+
+    var languagecode = httpContextAccessor.HttpContext.Request.Cookies["LanguageCode"];
+
+    if(!string.IsNullOrEmpty(languagecode)){
+        if(languagecode.Length  == 2){
+            languagecode   = "en-" + languagecode;
+            }
+
+    }
+    
+    bool redirect = false;
+     //check and save
+    var currentlanguagecode = "";
+    var currenturl = Context.Request.Path;
+    if (!string.IsNullOrEmpty(currenturl))
+    {
+        
+        currentlanguagecode = currenturl.ToString().Replace("/", "");
+        if (string.IsNullOrEmpty(currentlanguagecode))
+        {
+            //redirect
+            redirect = true;
+        }
+        else if (currentlanguagecode != languagecode)
+        {
+            //update
+            CookieOptions option = new CookieOptions();  
+            option.Expires = DateTime.Now.AddDays(20);  
+            httpContextAccessor.HttpContext.Response.Cookies.Append("LanguageCode", currentlanguagecode, option);  
+
+        }
+    }
+    
+    
+}
+
+@if ((!string.IsNullOrEmpty(languagecode)) && (redirect == true))
+{
+<script>
+    window.location.replace('@languagecode');
+    </script>
+   }
+@if (string.IsNullOrEmpty(currentlanguagecode))
+{
+    <script>
+            function geocheck2() {
+            var apiurl = "https://stx-technology.com/umbraco/api/GeoInfoApi/GetGeoDataAPI";
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = function () {
+                let result = this.responseText;
+                const jsonp = JSON.parse(result);
+                var languagecode = jsonp.country_code;
+
+                var locNZ = "@Model.Value("countryCodes", "en-nz")";
+                var locUK = "@Model.Value("countryCodes", "en-gb")";
+                var locUS = "@Model.Value("countryCodes", "en-us")";
+                var locAU = "@Model.Value("countryCodes", "en-au")";
+                var locCA = "@Model.Value("countryCodes", "en-ca")";
+
+                var location = "en-au";
+
+                if (locNZ.includes(languagecode)) {
+                    location = "en-nz";
+                }
+                if (locUK.includes(languagecode)) {
+                    location = "en-gb";
+                }
+                if (locUS.includes(languagecode)) {
+                    location = "en-us";
+                }
+                if (locAU.includes(languagecode)) {
+                    location = "en-au";
+                }
+                if (locCA.includes(languagecode)) {
+                    location = "en-ca";
+                }
+                window.location.replace(location);
+
+                //if (languagecode == "NZ") 
+                //{
+                //     window.location.replace('nz');
+                //}
+                //else if (languagecode == "UK") {
+                //    window.location.replace('uk');
+                //}
+                //else if (languagecode == "AU") {
+                //    window.location.replace('au');
+                //}
+                //else if (languagecode == "US") {
+                //    window.location.replace('us');
+                //}
+                //else if (languagecode == "CA") {
+                //    window.location.replace('ca');
+                //}
+                //else {
+                //    window.location.replace('au');
+                //}
+            }
+            xhttp.open("GET", apiurl, true);
+            xhttp.send();
+        }
+           geocheck2();
+
+    </script>
+
+
+}
+
+@section BannerText{
+    <div class="homebannertext">
+      <p class="stxtext1">Welcome to</p>
+      <div class="stxlogo">
+        @if (Model.SiteLogo != null && !string.IsNullOrEmpty(Model.SiteLogo.Url()))
+        {
+           <img src="@Model.SiteLogo.GetCropUrl(width: 303, height: 130, quality:80, furtherOptions: "&format=webp")" alt="@Model.Sitename" title="@Model.Sitename" style="max-height:130px; width:auto"><br />
+        }
+      </div>
+   
+        <h1 id="bannerheading" class="stxtext2"> 
+        Touch Computers for <br />
+        Industrial & Harsh Environments
+        </h1>
+   
+    </div>
+}
+
+@section Header{
+
+<style>
+.stxcontainer .stxcard .stxcontentBx , .stxcontainer .stxcard .stxcontentBx .color {
+  font-size: 18px;
+  line-height: 20px;
+}
+.stxsize {
+  font-size: 10px;
+  line-height: 20px;
+}
+</style>    
+}
+<div class="ps-product-list ps-product-list--2">
+    <div class="container">
+
+
+        <div class="ps-section__content">
+
+            <div class="row">
+
+
+                @if (Model.HomepageCategory != null)
+                {
+                    foreach (Category cat in Model.HomepageCategory)
+                    {
+    <style>
+    #ps-@cat.Id:after {
+        content: '@cat.Value("categoryType")';
+    }
+     #ps-@cat.Id:hover:after {
+        content: '@cat.Value("categoryType")';
+    }
+    </style> var categoryImage = cat.Value<IPublishedContent>("categoryImage");
+
+   
+    
+<div class="col-xl-3  col-lg-4 col-md-6 col-sm-12 col-12 ">
+                            <a href="@cat.Url()">
+                                <div class="stxcontainer">
+                                    <div class="stxcard2">
+                                        <div class="stxcard" id="ps-@cat.Id">
+                                            <div class="stxcard3">
+                                                <div class="stximgBx">
+                                                    @if (categoryImage != null)
+                                                    {
+                                                        var catImg = categoryImage.GetCropUrl(width: 180, height: 180, quality:80, furtherOptions: "&format=webp") ?? "";
+                                                        <img src="@catImg" alt="@categoryImage.Name" title="@categoryImage.Name" />
+                                                    }
+                                                </div>
+                                                <div class="stxcontentBx">
+                                                    <div class="stxwords">
+                                                           <h2>@cat.Value("pageTitle")</h2>
+                                                    </div><br>
+                                                    <div class="stxsize">
+                                                         @cat.Value("subTitle")
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+          
+        </div>
+}
+}
+
+
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<div class="ps-product-list ps-product-list--2 tech-update">
+    <div class="container" style="max-width:1230px !important; position: relative;">
+        <div class="ps-section__content">
+            <h3 style="font-weight:800; font-family:'Lato Black'; font-size: 3.5em;">
+                Technology 
+            </h3>
+            <p style="color:white; font-weight:normal; font-size: 1.8em">Designed to meet your specific needs </p>
+            <div class="ps-carousel--nav owl-slider" data-owl-auto="false" data-owl-loop="true" data-owl-speed="10000" data-owl-gap="0" data-owl-nav="true" data-owl-dots="false" data-owl-item="3" data-owl-item-xs="1" data-owl-item-sm="1" data-owl-item-md="2" data-owl-item-lg="3" data-owl-item-xl="3" data-owl-duration="1000" data-owl-mousedrag="on">
+                @if (Model.SelectTechnologyPosts != null)
+                {
+                    foreach (Blogpost post in Model.SelectTechnologyPosts)
+                    {
+                        var featuredimage = post.Value<IPublishedContent>("featuredImage");
+    <div class="ps-product">
+        <div class="ps-product__container">
+            <div class="techheading">
+                <a class="ps-product__title" href="@post.Url()" style="overflow: hidden; max-width: 33ch; text-overflow: ellipsis; white-space: nowrap; text-align: center; padding: 5px 12px 9px;">@post.Name()</a>
+            </div>
+        </div>
+        <div class="ps-product__thumbnail">
+            <a href="@post.Url()"><img src="@featuredimage.GetCropUrl(width: 288, height: 192, quality:80, furtherOptions: "&format=webp")" alt="@post.Name()" title="@post.Name()" /></a>
+        </div>
+
+        <div class="ps-product__container">
+            <div class="techdescrip">
+                @post.Excerpt
+            </div>
+        </div>
+    </div>}
+
+ foreach (Blogpost post in Model.SelectTechnologyPosts)
+                    {
+                        var featuredimage = post.Value<IPublishedContent>("featuredImage");
+    <div class="ps-product" style="margin:10px 55px;">
+        <div class="ps-product__container">
+            <div class="techheading">
+                <a class="ps-product__title" href="@post.Url()" style="overflow: hidden; max-width: 33ch; text-overflow: ellipsis; white-space: nowrap; text-align: center; padding: 5px 12px 9px;">@post.Name()</a>
+            </div>
+        </div>
+        <div class="ps-product__thumbnail">
+            <a href="@post.Url()"><img src="@featuredimage.GetCropUrl(width: 288, height: 192, quality:80, furtherOptions: "&format=webp")" alt="@post.Name()" title="@post.Name()" /></a>
+        </div>
+
+        <div class="ps-product__container">
+            <div class="techdescrip">
+                @post.Excerpt
+            </div>
+        </div>
+    </div>}
+
+}
+
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="ps-about-intro" style="padding:20px 0 0;">
+    <div class="container">
+
+        <div class="ps-section__content" style="padding-top: 30px;">
+            <div class="row">
+                <div class="col-xl-6 col-lg-6 col-xs-12 col-xs-pull-12 col-12">
+                    <div class="ps-section__header" style="margin-bottom:30px">
+                        @Model.HomeContent
+                    </div>
+                </div>
+                <div class="col-xl-6 col-lg-6 col-xs-12  col-xs-push-12  col-12">
+                    <div class="ps-carousel--nav owl-slider" data-owl-auto="true" data-owl-loop="true" data-owl-speed="5000" data-owl-gap="0" data-owl-nav="false" data-owl-dots="true" data-owl-item="1" data-owl-item-xs="1" data-owl-item-sm="1" data-owl-item-md="1" data-owl-item-lg="1" data-owl-item-xl="1" data-owl-duration="1000" data-owl-mousedrag="on">
+                        @if (Model.HomeGallery != null)
+                        {
+                            foreach (var photo in Model.HomeGallery)
+                            {
+
+            <div class="ps-product">
+                <div class="ps-product__thumbnail">
+                    <a href="#"><img src="@photo.GetCropUrl(width: 588, height: 392, quality:80, furtherOptions: "&format=webp")" alt="@photo.Name()" title="@photo.Name()" /></a>
+                </div>
+
+            </div>}
+    }
+
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="ps-section--default ps-home-blog homeblogsect">
+    <div class="container">
+        <div class="ps-section__header moreoptions">
+            
+            <h3 style="padding-top: 10px;"><span style="background: white; padding: 0px 20px; font-weight: bold; font-size: 1em;">News</span></h3>
+        </div>
+        <div class="ps-section__content">
+       <div class="ps-carousel--nav owl-slider" data-owl-auto="false" data-owl-loop="true" data-owl-speed="10000" data-owl-gap="0" data-owl-nav="true" data-owl-dots="false" data-owl-item="3" data-owl-item-xs="1" data-owl-item-sm="1" data-owl-item-md="2" data-owl-item-lg="3" data-owl-item-xl="3" data-owl-duration="1000" data-owl-mousedrag="on">
+                @if (Model.SelectFeaturedPosts != null)
+                {
+                    foreach (Blogpost post in Model.SelectFeaturedPosts)
+                    {
+                        var featuredimage = post.Value<IPublishedContent>("featuredImage");
+    <div class="ps-product2w">
+         <div class="ps-post">
+            <div class="ps-post__thumbnail"><a class="ps-post__overlay" href="@post.Url()"></a><img src="@featuredimage.GetCropUrl(width: 390, height: 300, quality:80, furtherOptions: "&format=webp")" alt="@post.Name()" title="@post.Name()"></div>
+            <div class="ps-post__content postdescr">
+                <a class="ps-post__title" href="@post.Url()">@post.Name()</a>
+                <p>@post.Excerpt</p>
+            </div>
+        </div>
+    </div>}
+ foreach (Blogpost post in Model.SelectFeaturedPosts)
+                    {
+                        var featuredimage = post.Value<IPublishedContent>("featuredImage");
+    <div class="ps-product2w">
+         <div class="ps-post">
+            <div class="ps-post__thumbnail"><a class="ps-post__overlay" href="@post.Url()"></a><img src="@featuredimage.GetCropUrl(width: 390, height: 300, quality:80, furtherOptions: "&format=webp")" alt="@post.Name()" title="@post.Name()"></div>
+            <div class="ps-post__content postdescr">
+                <a class="ps-post__title" href="@post.Url()">@post.Name()</a>
+                <p>@post.Excerpt</p>
+            </div>
+        </div>
+    </div>}
+}
+            </div>
+        
+        </div>
+
+    </div>
+</div>

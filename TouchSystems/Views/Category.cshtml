@@ -1,0 +1,206 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@using Umbraco.Extensions
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Category>
+
+@{ Layout = "master.cshtml";
+    //var backgroundImage = Model.HeroBackgroundImage != null ? Model.HeroBackgroundImage.Url() : String.Empty;
+
+var herobackground = "";
+   if (Model.Value("heroBackground") != null)
+    {
+        if (Model.Value<IPublishedContent>("heroBackground") != null)
+        {
+            herobackground = Model.Value<IPublishedContent>("heroBackground").Url();
+        }
+    }
+}
+@section Header{
+@if(!string.IsNullOrEmpty(herobackground))
+{
+    <style>
+        #headerimage{
+            background-image:url(@herobackground) !important
+            }
+    </style>
+}
+}
+
+@{
+    var selection = Model
+    .Children()
+    .Where(x => x.IsVisible());
+}
+
+<input type="hidden" name="currentpageid" id="currentpageid" value="@Model.Id" />
+@section BannerText{
+        <h1>@Model.Value("bannerText1")
+            <span>@Model.Value("bannerText2")<span>
+        </h1>
+    }
+
+<div class="ps-product-list ps-product-list--2">
+    <div class="container">
+        <div class="ps-section__content">
+            <div class="row">
+                @foreach (var item in selection)
+                {
+                    <style>
+                        #ps-@item.Id:after {
+                            content: '@item.Value("categoryType")';
+                        }
+                         #ps-@item.Id:hover:after {
+                            content: '@item.Value("categoryType")';
+                        }
+                    </style>
+                    var categoryImage = item.Value<IPublishedContent>("categoryImage");
+                    <div class="col-xl-3  col-lg-4 col-md-6 col-sm-12 col-12 ">
+                        <a href="@item.Url()">
+                            <div class="stxcontainer">
+                                <div class="stxcard2">
+                                    <div class="stxcard" id="ps-@item.Id">
+                                        <div class="stxcard3">
+                                            <div class="stximgBx">
+                                                @if (categoryImage != null)
+                                                {
+                                                    <img src="@categoryImage.GetCropUrl(width: 180, height: 180, quality:80, furtherOptions: "&format=webp")" alt="@item.Name" title="@item.Name" />
+                                                }
+                                            </div>
+                                            <div class="stxcontentBx">
+                                                <div class="stxwords">
+                                                    <h2>@item.Value("pageTitle")</h2>
+                                                </div><br>
+                                                <div class="stxsize">
+                                                  @item.Value("subTitle")
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+        @*asa*@
+        <div class="ps-section__content">
+            <div class="row">
+                @if (Model.CatgoryProducts != null)
+                {
+                    foreach (Product product in Model.CatgoryProducts)
+                    {
+                        var ps = product.Value<IPublishedContent>("frontPhoto");
+                       <style>
+                            #ps-@product.Id:after {
+                                content: '@product.ModelNumber';
+                            }
+                             #ps-@product.Id:hover:after {
+                                content: '@product.ModelNumber';
+                            }
+                        </style>
+                        <div class="col-xl-3  col-lg-4 col-md-6 col-sm-12 col-12 ">
+                            <a href="@product.Url()">
+                                <div class="stxcontainer">
+                                    <div class="stxcard2">
+                                        <div class="stxcard" id="ps-@product.Id">
+                                            <div class="stxcard3">
+                                                <div class="stximgBx">
+                                                   @if (ps != null)
+                                                    {
+                                                        <img src="@ps.GetCropUrl(width: 180, height: 180, quality:80, furtherOptions: "&format=webp")" alt="@product.Name" title="@product.Name" />
+                                                    }
+                                                </div>
+                                                <div class="stxcontentBx">
+                                                    <div class="stxwords">
+                                                        @*<h2 style="font-size: 24px; line-height: 24px;">@product.Value("subTitle")</h2>*@
+                                                        <h2>@product.Value("subTitle")</h2>
+                                                    </div><br>
+                                                    @*<div class="stxsize" style="font-size: 24px; line-height: 24px;">*@
+                                                    <div class="stxsize">
+                                                        @product.Value("contents")
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                }
+            </div>
+            <div class="row">
+                @if (Model.AccessoryProducts != null)
+                {
+                    foreach (Product product in Model.AccessoryProducts)
+                    {
+                        var ps = product.Value<IPublishedContent>("frontPhoto");
+                        @*<style>
+                            #ps-@product.Id:after {
+                                content: '@product.ModelNumber';
+                            }
+                             #ps-@product.Id:hover:after {
+                                content: '@product.ModelNumber';
+                            }
+                        </style>*@
+                        <div class="col-xl-3  col-lg-4 col-md-6 col-sm-12 col-12 ">
+                            <a href="@product.Url()">
+                                <div class="stxcontainer">
+                                    <div class="stxcard2">
+                                        <div class="stxcard" id="ps-@product.Id">
+                                            <div class="stxcard3">
+                                                <div class="stximgBx">
+                                                   @if (ps != null)
+                                                    {
+                                                        <img src="@ps.GetCropUrl(width: 180, height: 180, quality:80, furtherOptions: "&format=webp")" alt="@product.Name" title="@product.Name" />
+                                                    }
+                                                </div>
+                                                <div class="stxcontentBx">
+                                                    <div class="stxwords">
+                                                        @*<h2 style="font-size: 24px; line-height: 24px;">@product.Value("subTitle")</h2>*@
+                                                        <h2>@product.Value("subTitle")</h2>
+                                                    </div><br>
+                                                    @*<div class="stxsize" style="font-size: 24px; line-height: 24px;">*@
+                                                    <div class="stxsize">
+                                                        @product.Value("contents")
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+          
+                        </div>
+
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="ps-section--default">
+    <div class="container">
+        <div class="ps-section__content">
+            <div class="row" style="overflow-y:hidden">
+                <div class="col-md-12">
+                    @Html.GetGridHtml(Model, "bodyText", "bootstrap3-fluid")
+                    <p></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section footerscript{
+ <script type="text/javascript">
+    var bh = document.getElementById("bannerheading");
+    var characters = bh.innerText.split('');
+    let countlen = characters.length;
+    if (countlen <= 14){
+        $("#bannerheading").css({'top':'65%'});
+    }
+</script>
+}

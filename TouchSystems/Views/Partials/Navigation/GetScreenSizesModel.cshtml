@@ -1,0 +1,50 @@
+﻿@model IEnumerable<IPublishedContent>
+
+<div class="dsboxheading" style="    display: flex;    width: 169px;    justify-content:space-between;    text-align: center;">
+  <div class="screensizehead" style="padding-top:6px; background-color:#fff; width:71px">
+
+            <span>Standard</span>
+
+        </div>
+
+         <div class="screensizehead" style="padding-top:6px; background-color:#fff; width:89px">
+            <span>Widescreen</span>
+
+        </div>
+</div>
+<div class="dsbox">
+    <div class="text-center" style="padding-left: 0; padding-right: 8px; border-right: dashed 1px #333;">
+     <!--   <div class="screensizehead" style="padding-top:6px">
+
+            <span>Standard</span>
+
+        </div> -->
+        @foreach (var item in Model.Where(x => x.IsVisible() && x.Value("aspectRatio").ToString() == "4:3" || x.Value("aspectRatio").ToString() == "5:4"))
+        {
+
+<div class="screensize43">
+    <a href="?size=@item.Name">
+        <span>@item.Value("screenSizeInch")''</span><br />
+        @item.Value("screenResolution")
+    </a>
+</div>}
+
+    </div>
+    <div class=" text-center" style="padding-left:8px;">
+      <!--  <div class="screensizehead" style="padding-top:6px">
+            <span>Widescreen</span>
+
+        </div> -->
+        @foreach (var item in Model.Where(x => x.IsVisible() && x.Value("aspectRatio").ToString() == "16:9" || x.Value("aspectRatio").ToString() == "16:10"))
+        {
+<div class="screensize169">
+    <a href="?size=@item.Name">
+        <span>@item.Value("screenSizeInch")''</span><br />
+        @item.Value("screenResolution")
+    </a>
+</div>}
+    </div>
+</div>
+<div class="dsboxhead">
+    <span id="dsboxheadblk">Click a Display Size to see details</span>
+</div>

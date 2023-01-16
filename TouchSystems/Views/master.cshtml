@@ -1,0 +1,627 @@
+﻿@using System.Globalization
+@using Umbraco.Cms.Web.Common.PublishedModels
+@using Umbraco.Extensions
+@using Microsoft.AspNetCore.Http
+@using Umbraco.Cms.Core.Models
+@using Umbraco.Cms.Core.Services
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Umbraco.Cms.Core.WebAssets
+@using TouchSystems.ViewModel;
+@using Microsoft.Extensions.Options
+@inject ILocalizationService LocalizationService
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IRuntimeMinifier runtimeMinifier
+@inject IOptions<GoogleReCaptchaSettings> _googleCaptchaSettings
+
+@{
+    Layout = null;
+    // Get basic design settings from the homepage
+    var home = (Home)Model.Root();
+  
+    var font = home.Font;
+    var colorTheme = home.ColorTheme;
+    var backgroundImage = home.HeroBackgroundImage != null ? home.HeroBackgroundImage.GetCropUrl(quality:80, furtherOptions: "&format=webp") : String.Empty;
+    var helplineno = home.HelplineNumber;
+    
+    var langcode = HttpContextAccessor.HttpContext.Request.Cookies["LanguageCode"];
+    var region = HttpContextAccessor.HttpContext.Request.Cookies["LanguageCode"];
+    var cookieconsent = HttpContextAccessor.HttpContext.Request.Cookies["CookieConsent"];
+    IEnumerable<ILanguage> languages = LocalizationService.GetAllLanguages();
+
+    var regioncode = HttpContextAccessor.HttpContext.Request.Cookies["region"];
+    var regionnumber = "";
+    
+    string[] mURL = Model.Url().Split('/');
+    string mURLHRef = mURL[1];
+    string mURLPath = "";
+    
+    int i = 0;
+    foreach (string mU in mURL)
+    {
+        if (i > 1)
+        {
+            if(!String.IsNullOrEmpty(mU)) 
+            {
+                mURLPath = mURLPath + "/" + mU;
+            }
+        }
+        i += 1;
+    }
+        
+    string mcanonical ="https://stx-technology.com/" + mURLHRef;
+    
+    var gtag = "G-3BCDGMBHSJ";
+    var locNZ = "en-nz";
+    var locUK = "en-gb";
+    var locUS = "en-us";
+    var locAU = "en-au";
+    var locCA = "en-ca";
+    
+    if (langcode == locNZ) {
+        gtag = "G-QLD3VJ6VV3";
+    }
+        if (langcode == locUK) {
+        gtag = "G-N8VXHB4K92";
+    }
+        if (langcode == locUS) {
+        gtag = "G-KTYH49RG31";
+    }
+        if (langcode == locAU) {
+        gtag = "G-3BCDGMBHSJ";
+    }
+        if (langcode == locCA) {
+        gtag = "G-91VD14W548";
+    }
+    
+    if(regioncode != null)
+    {
+    
+        if (home.RegionalPhoneNumbers != null){
+            foreach (var item in home.RegionalPhoneNumbers.Where(x => x.Value("regionNames").ToString().ToLower().Contains(regioncode.ToLower())).Take(1))
+            {
+             regionnumber  = item.PhoneNumber;
+            }
+        }
+        if (!string.IsNullOrEmpty(regionnumber)){
+            helplineno = regionnumber;
+        }
+    }
+    
+    var keywords = string.Join(",", Model.Value<IEnumerable<string>>("keywords"));
+
+    var threshold = Convert.ToDouble(
+                        @Model
+                        .AncestorOrSelf(1)
+                        .Children
+                        .Where(x => x.ContentType.Alias == "generalSettings")
+                        .First()
+                        .Value("reCaptchaScoreThreshold")
+                    );
+}
+<!DOCTYPE html>
+<html lang="en-us">
+    
+<!-- headers-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="author" content="">
+    <meta name="keywords" content="@keywords" />
+    <meta name="description" content="@Model.Value("seoMetaDescription")">
+    
+    @{
+        var currentLang = "";
+    }
+    @foreach (ILanguage language  in languages)
+    {
+        var defaultlang = Model.Url().Contains(language.IsoCode.ToLower());
+        @if (!defaultlang)
+            {
+                <link rel="alternate" href="https://stx-technology.com/@language.IsoCode.ToLower()@mURLPath" hreflang="@language.IsoCode.ToLower()"/>
+            }
+            else{
+                <link rel="canonical" href="https://stx-technology.com/@language.IsoCode.ToLower()@mURLPath" hreflang="@language.IsoCode.ToLower()"/>
+                currentLang = language.IsoCode;
+            }
+    }
+    
+    <title>@home.Sitename - @Model.Name (@currentLang)</title>
+     <style>
+    .ps-panel--sidebar{    transform: translateX(-100%);}
+    </style>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    @Html.Raw(await runtimeMinifier.RenderCssHereAsync("registered-critical-css-bundle"))
+    
+    <link rel="shortcut icon" type="image/x-icon" href="~/img/favicon.ico">
+
+    <style>
+        #headerimage {
+            background-image: url(@backgroundImage)
+        }
+    </style>
+    @RenderSection("Header", required: false)
+
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','@gtag');</script>
+    <!-- End Google Tag Manager -->
+
+</head>
+@*@foreach (var (culture, infos) in Model.Cultures)
+    {
+    <a href="@Model.Url(culture)">
+        dd
+    </a>
+    }*@
+    
+
+    
+<body>
+    
+    @* <div id="loader-wrapper">
+    <div class="loader-section section-left"></div>
+    <div class="loader-section section-right"></div>
+    </div>*@
+    <header class="header header--standard header--electronic  header--sticky" data-sticky="true">
+
+        <div class="header__content">
+            <div class="header__top">
+                <div class="container">
+                    <!--  <div class="header__left">
+                     </div>-->
+                    <div class="header__rights">
+                        <ul class="header__top-links" style="text-align:right; ">
+                            <li><a href="tel:@helplineno">@helplineno </a></li>
+                            <li>
+                                <div class="ps-dropdown language">
+                                    <a href="@Model.Url()"><img src="~/img/flag/nz.png" id="flagimg" alt="flag-nz" title="flag-az">  @System.Threading.Thread.CurrentThread.CurrentCulture.DisplayName </a>
+                                    <ul class="ps-dropdown-menu">
+                                        <li><a href="https://stx-technology.com/en-au" rel="en-au" data-value="en-AU" class="stx-region"><img src="~/img/flag/aus.png" alt="flag-aus" title="flag-aus"> Australia</a></li>
+                                        <li><a href="https://stx-technology.com/en-nz" rel="en-nz" data-value="en-NZ" class="stx-region"><img src="~/img/flag/nz.png" alt="flag-nz" title="flag-az"> New Zealand </a></li>
+                                        <li><a href="https://stx-technology.com/en-ca" rel="en-ca" data-value="en-CA" class="stx-region"><img src="~/img/flag/cad.png" alt="flag-cad" title="flag-cad"> Canada</a></li>
+                                        <li><a href="https://stx-technology.com/en-us" rel="en-us" data-value="en-US" class="stx-region"><img src="~/img/flag/usa.png" alt="flag-usa" title="flag-usa"> United States</a></li>
+                                        <li><a href="https://stx-technology.com/en-gb" rel="en-gb" data-value="en-GB" class="stx-region"><img src="~/img/flag/en.png" alt="flag-en" title="flag-en"> United Kingdom</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div style="max-width:350px"></div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="header__content-left">
+                    @if (home.SiteLogo != null && !string.IsNullOrEmpty(home.SiteLogo.Url()))
+                    {
+                        <a class="ps-logo" href="~/"><img src="@home.SiteLogo.GetCropUrl(width: 303, height: 130, quality:80, furtherOptions: "&format=webp")" alt="@home.Sitename" title="@home.Sitename"></a>
+                    }
+                    else
+                    {
+                        <a class="ps-logo" href="~/">@home.Sitename</a>
+                    }
+                </div>
+                <div class="header__content-center">
+                    <div class="headernavdiv">
+                        <ul class="menu pull-right" style="margin-right: 10px;">
+
+                            @await Html.PartialAsync("~/Views/Partials/Navigation/TopNavigation.cshtml")
+
+                        </ul>
+                    </div>
+                </div>
+                <div class="header__content-right">
+                    <form class="ps-form--quick-search pull-right" action="~/product-search" method="get">
+
+                        <input class="form-control" type="text" placeholder="Search Products" name="q">
+                        <button><i class="fa fa-search"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </header>
+    <header class="header header--mobile electronic header--sticky" data-sticky="true">
+        <div class="header__top">
+            <div class="header__left">
+            </div>
+            <div class="header__right">
+                <ul class="navigation__extra" style="display:flex;     justify-content: center;">
+                    <li> <a href="@helplineno"> @helplineno</a></li>
+
+                    <li>
+                        <div class="ps-dropdown language">
+                            <a href="@Model.Url()"><img src="~/img/flag/nz.png" alt="flad-nz" title="flad-nz">  @System.Threading.Thread.CurrentThread.CurrentCulture.DisplayName </a>
+                            <ul class="ps-dropdown-menu">
+                                <li><a href="https://stx-technology.com/en-au" rel="en-au" data-value="en-AU" class="stx-region"><img src="~/img/flag/aus.png" alt="flad-aus" title="flad-aus"> Australia</a></li>
+                                <li><a href="https://stx-technology.com/en-nz" rel="en-nz" data-value="en-NZ" class="stx-region"><img src="~/img/flag/nz.png" alt="flad-nz" title="flad-nz"> New Zealand </a></li>
+                                <li><a href="https://stx-technology.com/en-ca" rel="en-ca" data-value="en-CA" class="stx-region"><img src="~/img/flag/cad.png" alt="flad-cad" title="flad-cad"> Canada</a></li>
+                                <li><a href="https://stx-technology.com/en-us" rel="en-us" data-value="en-US" class="stx-region"><img src="~/img/flag/usa.png" alt="flad-usa" title="flad-usa"> United States</a></li>
+                                <li><a href="https://stx-technology.com/en-gb" rel="en-gb" data-value="en-GB" class="stx-region"><img src="~/img/flag/en.png" alt="flad-en" title="flad-en"> United Kingdom</a></li>
+                            </ul>
+
+                        </div>
+
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+        <div class="navigation--mobile">
+            <div class="navigation__left" style="padding-right: 17px;">
+                @if (home.SiteLogo != null && !string.IsNullOrEmpty(home.SiteLogo.Url()))
+                {
+                    <a class="ps-logo" href="~/"><img src="@home.SiteLogo.GetCropUrl(width: 303, height: 130, quality:80, furtherOptions: "&format=webp")" alt="@home.Sitename" title="@home.Sitename"></a>
+                }
+                else
+                {
+                    <a class="ps-logo" href="/">@home.Sitename</a>
+                }
+
+            </div>
+            <div class="navigation__right">
+
+                <div class="header__actions">
+
+                    <form class="ps-form--quick-search pull-right" action="index.html" method="get">
+
+                        <input class="form-control" type="text" placeholder="Search">
+                        <button><i class="fa fa-search"></i></button>
+                    </form>
+                </div>
+            </div>
+            <div class="mobile-nav-icon"><a class="navigation__item ps-toggle--sidebar" href="#menu-mobile"><i class="icon-menu"></i></a></div>
+        </div>
+        @*<div class="ps-search--mobile">
+        <form class="ps-form--search-mobile" action="index.html" method="get">
+        <div class="form-group--nest">
+        <input class="form-control" type="text" placeholder="Search something..." />
+        <button><i class="icon-magnifier"></i></button>
+        </div>
+        </form>
+        </div>*@
+    </header>
+    <div id="homepage-7">
+        @*      <div class="ps-home-banner">
+        <div class="ps-carousel--nav-inside owl-slider" data-owl-auto="false" data-owl-loop="false" data-owl-speed="5000" data-owl-gap="0" data-owl-nav="false" data-owl-dots="false" data-owl-item="1" data-owl-item-xs="1" data-owl-item-sm="1" data-owl-item-md="1" data-owl-item-lg="1" data-owl-duration="1000" data-owl-mousedrag="on" data-owl-animate-in="fadeIn" data-owl-animate-out="fadeOut">
+        <div class="ps-banner--autopart1" data-background="@backgroundImage" >
+
+        <div class="ps-banner__content" style="height:400px">
+        @RenderSection("BannerText", required: false)
+        <!--  <a class="ps-btn" href="#">Shop Now</a>-->
+        </div>
+        </div>
+        </div>
+        </div>*@
+
+        <div id="headerimage" style=" background-attachment: fixed;background-position: 90% top;background-repeat: no-repeat; background-size1:cover;  height:480px">
+            <div class="container">
+                <div class="ps-banner__content" style="height:480px">
+                    @RenderSection("BannerText", required: false)
+                </div>
+            </div>
+        </div>
+
+        @RenderBody()
+
+        <div class="ps-promotions">
+            <div class="container">
+                <div class="ps-collection" >
+                    @if (home.FooterBanner != null)
+                    {
+                        <div style="position: relative;">
+                        <img src="@home.FooterBanner.GetCropUrl(width: 650, height: 82, quality:80, furtherOptions: "&format=webp")" alt="promotion banner" title="promotion banner">
+                        <div class="tel" >Contact STX Team! @helplineno</div>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+
+        <footer class="ps-footer">
+            <div class="ps-container">
+                <div class="ps-footer__widgets">
+                    <aside class="widget widget_footer widget_contact-us">
+                        <h4 class="widget-title">
+                            @if (home.SiteLogo != null && !string.IsNullOrEmpty(home.SiteLogo.Url()))
+                            {
+                                <a class="ps-logo" href="~/"><img src="@home.SiteLogo.GetCropUrl(width: 303, height: 130, quality:80, furtherOptions: "&format=webp")" alt="@home.Sitename" title="@home.Sitename" style="max-height: 100px; margin-top:30px;"></a>
+                            }
+
+
+                        </h4>
+
+                    </aside>
+                    <aside class="widget widget_footer">
+                        @home.Value("addressColumn1")
+                    </aside>
+                    <aside class="widget widget_footer">
+                        @home.Value("addressColumn2")
+                    </aside>
+                    <aside class="widget widget_footer  d-none d-md-block">
+                        <h4 class="widget-title bbwhite">Information</h4>
+                        @{
+                            var infolinks = home.Value<IEnumerable<Link>>("informationLinks");
+                        }
+
+                        @if (infolinks != null && infolinks.Any())
+                        {
+                            <ul class="ps-list--link1">
+                                @foreach (var link in infolinks)
+                                {
+                                    <li><a href="@link.Url" target="@link.Target">@link.Name</a></li>
+                                }
+                            </ul>
+                        }
+
+                        <br />
+                        <div class="widget-title ">
+                            Follow Us &nbsp;  <ul class="ps-list--social pull-right">
+                                <li><a class="linkedin" href="#" style="color:white"><i class="fa fa-facebook fa-sm"></i></a></li>
+                                <li><a class="youtube" href="#" style=""><i class="fa fa-youtube fa-lg"></i></a></li>
+                            </ul>
+                        </div>
+
+                    </aside>
+                    <aside class="widget widget_footer  d-none d-md-block">
+                        <h4 class="widget-title bbwhite">Customer Service</h4>
+                        @{
+                            var cslinks = home.Value<IEnumerable<Link>>("customerServiceLinks");
+                        }
+
+                        @if (cslinks != null && cslinks.Any())
+                        {
+                            <ul class="ps-list--link1">
+                                @foreach (var link in cslinks)
+                                {
+                                    <li><a href="@link.Url" target="@link.Target">@link.Name</a></li>
+                                }
+                            </ul>
+                        }
+
+
+                    </aside>
+                    <aside class="widget widget_footer d-none d-lg-block">
+                        <h4 class="widget-title bbwhite">Products</h4>
+                        @{
+                            var pslinks = home.Value<IEnumerable<Link>>("productsLinks");
+                        }
+
+                        @if (pslinks != null && pslinks.Any())
+                        {
+                            <ul class="ps-list--link1">
+                                @foreach (var link in pslinks)
+                                {
+                                    <li><a href="@link.Url" target="@link.Target">@link.Name</a></li>
+                                }
+                            </ul>
+                        }
+
+
+                    </aside>
+
+                    <aside class="widget widget_footer   widget_contact-us mobilesociallink">
+                        <div class=" ">
+                            <h3> Follow Us </h3>
+                            <ul class="ps-list--social ">
+                                <li><a class="linkedin" href="#" style="color:white"><i class="fa fa-facebook fa-sm"></i></a></li>
+                                <li><a class="youtube" href="#" style=""><i class="fa fa-youtube fa-lg"></i></a></li>
+                            </ul>
+
+                        </div>
+                    </aside>
+                </div>
+                <div style="">@home.Value("copyright")    @regionnumber</div>
+
+            </div>
+        </footer>
+    </div>
+
+    <div class="ps-site-overlay"></div>
+
+
+    <div class="ps-panel--sidebar" id="menu-mobile">
+        <div class="ps-panel__header">
+            <h3>Menu</h3>
+        </div>
+        <div class="ps-panel__content">
+            <ul class="menu--mobile">
+                @await Html.PartialAsync("~/Views/Partials/Navigation/TopNavigation.cshtml")
+
+            </ul>
+        </div>
+    </div>
+
+    <div class="rp-contactpop fixed">
+
+        <div class="ewscontactpop">
+            <h3>Give us a Call <br /> <span>@helplineno</span></h3>
+            <div class="renseignement">
+                <div class="leavemsg">
+                    Or leave a message
+                </div>
+                <div class="response">@TempData["response"]</div>
+            </div>
+            @using (Html.BeginUmbracoForm<TouchSystems.Controller.ContactFormController>(nameof(TouchSystems.Controller.ContactFormController.SubmitGetintouch)))
+            {
+                <div class="">
+                    @Html.Hidden("CaptchaToken")
+                    @Html.Hidden("Threshold", threshold)
+                    @Html.Hidden("Country", System.Threading.Thread.CurrentThread.CurrentCulture.DisplayName)
+                    <input type="text" name="name" placeholder="Your name" />
+                    <input type="hidden" name="lastname" />
+                    <input type="hidden" name="product" />
+                </div>
+                <div class="">
+                    <input type="text" name="Company" placeholder="Company Name" />
+                </div>
+                <div class="">
+                    <input type="text" name="phone" placeholder="Phone number" />
+                </div>
+                <div class="">
+                    <input type="email" name="email" placeholder="E-mail" />
+                </div>
+
+                <div class="">
+                    <textarea id="message" name="message" type="text" placeholder="Message"></textarea>
+                </div>
+                <button type="submit">Submit</button>
+            }
+        </div>
+        <div class="btngetintouch"><a href="#">@home.GetInTouch</a></div>
+    </div>
+
+    <div id="langswitcher">
+        @using (Html.BeginUmbracoForm<TouchSystems.Controller.LangSwitcherController>(nameof(TouchSystems.Controller.LangSwitcherController.Switch)))
+        {
+            <input type="hidden" name="langpageid" id="langpageid" value="" />
+            <input type="hidden" name="langcountry" id="langcountry" value="" />
+            <input type="hidden" name="cultureinfo" id="cultureinfo" value="" />
+            <input type="hidden" name="langdata" value="LanguageCode" />
+        }
+    </div>
+    @if (cookieconsent == null && home.ShowCookieConsent)
+    {
+        <div id="eu-cookie-box" class="eu-cookie-box">
+            <div class="content">
+            <div><p>This website uses a small number of functional cookies.</p><p>By continuing to browse the site you are agreeing to our use of these functional cookies.</p></div>
+            <div class="buttons-more">
+                <button type="button" class="ok-button button-1" id="eu-cookie-ok">OK</button>
+                <p><u><a class="learn-more" href="~/privacy-notice">Learn more</a></u></p>
+            </div>
+        </div>
+    </div>
+    }
+
+
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700&amp;amp;subset=latin-ext" rel="stylesheet">
+    @Html.Raw(await runtimeMinifier.RenderCssHereAsync("registered-css-bundle"))
+    @Html.Raw(await runtimeMinifier.RenderJsHereAsync("registered-js-bundle"))
+    
+    <script type="text/javascript">
+        function checkIfEmptyNull(e) {
+            switch (e) {
+                case "":
+                case 0:
+                case "0":
+                case null:
+                case false:
+                case undefined:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        $(document).ready(function () {
+            $("#headerimage .stxlogo").animate({ left: "10px", opacity: "1", transition: "1.2s" });
+            $("#headerimage .stxtext2").animate({ left: "10px", opacity: "1", transition: "1.6s" });
+            $("#headerimage .stxtext1").animate({ left: "10px", opacity: "1", transition: "1.9s" });
+
+
+
+            $("#headerimage .catgtext1").animate({ left: "10px", opacity: "1", transition: "1.1s" });
+            $("#headerimage .catgtext2").animate({ left: "10px", opacity: "1", transition: "1.3s" });
+
+            var gitres = "@TempData["response"]";
+            if (gitres != "") {
+                $(".rp-contactpop").css({ "right": "10px" }).addClass('visible');
+            }
+            /**/
+            $(".screensizebox").mouseenter(function () {
+                $(this).animate({ "right": "45px" }, "slow");
+            }).mouseleave(function () {
+                setTimeout(function () {
+                    if ($('.screensizebox:hover').length == 0) {
+                        $(".screensizebox").animate({ "right": "-137px" }, "slow").removeClass('visible');
+                    }
+                }, 2000)
+
+            });
+
+
+            $(".btngetintouch").click(function () {
+                if ($(".rp-contactpop").hasClass('visible')) {
+                    $(".rp-contactpop").animate({ "right": "-222px" }, "slow").removeClass('visible');
+                } else {
+                    $(".rp-contactpop").animate({ "right": "0px" }, "slow").addClass('visible');
+                }
+            });
+
+            $(".stx-region").click(function (e) {
+                e.preventDefault();
+                let country = $(this).attr("rel");
+                var pageid = $("#currentpageid").val();
+                var cultureinfo = $(this).attr("data-value");
+                if (checkIfEmptyNull(pageid) == false) {
+                    $("#langpageid").val(pageid);
+                }
+                $("#cultureinfo").val(cultureinfo);
+                $("#langcountry").val(country);
+                $("#langswitcher").find('form').submit();
+            });
+
+            var strcountryflag = $(".stx-region[rel='@region']").first().find("img").attr("src");
+            $("#flagimg").attr("src", strcountryflag);
+
+
+        });
+
+
+    </script>
+    
+    @if(cookieconsent == null&& home.ShowCookieConsent){
+
+
+    <script type="text/javascript">
+    $(document).ready(function () {
+        $('#eu-cookie-box').show();
+        $('#eu-cookie-ok').click(function () {
+            $.ajax({
+                cache: false,
+                type: 'POST',
+                url: '/cookieconsent',
+                dataType: 'text',
+                success: function (data) {
+                    $('#eu-cookie-box').hide();
+                },
+                failure: function () {
+                  
+                }
+            });
+    });
+    });
+</script>
+ }
+    
+    @RenderSection("footerscript", required: false)
+    <script src="https://www.google.com/recaptcha/api.js?render=@_googleCaptchaSettings.Value.SiteKey"></script>
+    <script>
+        function getToken() {
+            grecaptcha.ready(function () {
+                grecaptcha.execute('@_googleCaptchaSettings.Value.SiteKey', { action: 'submit' })
+                    .then(function (token) {
+                        document.getElementById("Token").value = token;
+                        document.getElementById("CaptchaToken").value = token;
+                    });
+            });
+        }
+
+        setInterval(getToken, 115000);
+
+        window.addEventListener('DOMContentLoaded', (event) => {
+            getToken();
+        });
+    </script>
+</body>
+
+</html>

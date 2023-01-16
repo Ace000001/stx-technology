@@ -1,0 +1,14 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Blankpage>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+@{
+	Layout = null;
+	
+	   CookieOptions option = new CookieOptions();  
+            option.Expires = DateTime.Now.AddDays(20);  
+            httpContextAccessor.HttpContext.Response.Cookies.Append("CookieConsent", "Agreed", option);  
+            
+}
+<p style="text-align:center">Cookie consent accepted.</p>
