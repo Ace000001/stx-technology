@@ -24,3 +24,8 @@
 
 # Ignore the Models Builder models out of date flag
 **/App_Data/Models/ood.flag
+
+/TouchSystems.BAL/bin/
+/TouchSystems.BAL/obj/
+/TouchSystems.Data/bin/
+/TouchSystems.Data/obj/
