@@ -21,7 +21,7 @@ namespace TouchSystems.Helper
             if (_runtimeState.Level == RuntimeLevel.Run)
             {
                 _runtimeMinifier.CreateJsBundle("registered-js-bundle",
-                    BundlingOptions.OptimizedAndComposite,
+                    BundlingOptions.OptimizedNotComposite,
                     new[] { 
                         "~/plugins/jquery.min.js",
                         "~/plugins/nouislider/nouislider.min.js",
@@ -39,19 +39,19 @@ namespace TouchSystems.Helper
                         "~/plugins/sticky-sidebar/dist/sticky-sidebar.min.js",
                         "~/plugins/select2/dist/js/select2.full.min.js",
                         "~/plugins/gmap3.min.js",
-                        "~/scripts/js/main.min.js"
+                        "~/scripts/js/main.js"
                     });
 
                 _runtimeMinifier.CreateCssBundle("registered-critical-css-bundle",
-                    BundlingOptions.OptimizedAndComposite,
+                    BundlingOptions.OptimizedNotComposite,
                     new[] {
                         "~/plugins/bootstrap/css/bootstrap.min.css",
-                        "~/css/css/style.min.css",
-                        "~/css/css/electronic.min.css"
+                        "~/css/css/style.css",
+                        "~/css/css/electronic.css"
                     });
 
                 _runtimeMinifier.CreateCssBundle("registered-css-bundle",
-                    BundlingOptions.OptimizedAndComposite,
+                    BundlingOptions.OptimizedNotComposite,
                     new[] {
                         "~/plugins/nouislider/nouislider.min.css",
                         "~/plugins/font-awesome/css/font-awesome.min.css",
