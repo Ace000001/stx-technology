@@ -73,7 +73,10 @@ namespace TouchSystems
                 app.UseDeveloperExceptionPage();
             }
             app.UseDeveloperExceptionPage();
-            app.UseRewriter(new RewriteOptions().AddIISUrlRewrite(env.ContentRootFileProvider, "IISUrlRewrite.xml"));
+            //app.UseRewriter(new RewriteOptions().AddIISUrlRewrite(env.ContentRootFileProvider, "IISUrlRewrite.xml"));
+            app.UseRewriter(new RewriteOptions()
+                .AddRedirectToNonWwwPermanent()
+                .AddRedirectToHttpsPermanent());
             app.UseUmbraco()
                 .WithMiddleware(u =>
                 { 

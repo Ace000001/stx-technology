@@ -17966,3 +17966,6 @@ input[type='radio'], input[type='checkbox'] {
     accent-color: rgb(24 37 63);
     ;
 }
+.grecaptcha-badge {
+    visibility: hidden;
+}

@@ -17,12 +17,12 @@
     Layout = null;
     // Get basic design settings from the homepage
     var home = (Home)Model.Root();
-  
+
     var font = home.Font;
     var colorTheme = home.ColorTheme;
-    var backgroundImage = home.HeroBackgroundImage != null ? home.HeroBackgroundImage.GetCropUrl(quality:80, furtherOptions: "&format=webp") : String.Empty;
+    var backgroundImage = home.HeroBackgroundImage != null ? home.HeroBackgroundImage.GetCropUrl(quality: 80, furtherOptions: "&format=webp") : String.Empty;
     var helplineno = home.HelplineNumber;
-    
+
     var langcode = HttpContextAccessor.HttpContext.Request.Cookies["LanguageCode"];
     var region = HttpContextAccessor.HttpContext.Request.Cookies["LanguageCode"];
     var cookieconsent = HttpContextAccessor.HttpContext.Request.Cookies["CookieConsent"];
@@ -30,63 +30,70 @@
 
     var regioncode = HttpContextAccessor.HttpContext.Request.Cookies["region"];
     var regionnumber = "";
-    
+
     string[] mURL = Model.Url().Split('/');
     string mURLHRef = mURL[1];
     string mURLPath = "";
-    
+
     int i = 0;
     foreach (string mU in mURL)
     {
         if (i > 1)
         {
-            if(!String.IsNullOrEmpty(mU)) 
+            if (!String.IsNullOrEmpty(mU))
             {
                 mURLPath = mURLPath + "/" + mU;
             }
         }
         i += 1;
     }
-        
-    string mcanonical ="https://stx-technology.com/" + mURLHRef;
-    
+
+    string mcanonical = "https://stx-technology.com/" + mURLHRef;
+
     var gtag = "G-3BCDGMBHSJ";
     var locNZ = "en-nz";
     var locUK = "en-gb";
     var locUS = "en-us";
     var locAU = "en-au";
     var locCA = "en-ca";
-    
-    if (langcode == locNZ) {
+
+    if (langcode == locNZ)
+    {
         gtag = "G-QLD3VJ6VV3";
     }
-        if (langcode == locUK) {
+    if (langcode == locUK)
+    {
         gtag = "G-N8VXHB4K92";
     }
-        if (langcode == locUS) {
+    if (langcode == locUS)
+    {
         gtag = "G-KTYH49RG31";
     }
-        if (langcode == locAU) {
+    if (langcode == locAU)
+    {
         gtag = "G-3BCDGMBHSJ";
     }
-        if (langcode == locCA) {
+    if (langcode == locCA)
+    {
         gtag = "G-91VD14W548";
     }
-    
-    if(regioncode != null)
+
+    if (regioncode != null)
     {
-    
-        if (home.RegionalPhoneNumbers != null){
+
+        if (home.RegionalPhoneNumbers != null)
+        {
             foreach (var item in home.RegionalPhoneNumbers.Where(x => x.Value("regionNames").ToString().ToLower().Contains(regioncode.ToLower())).Take(1))
             {
-             regionnumber  = item.PhoneNumber;
+                regionnumber = item.PhoneNumber;
             }
         }
-        if (!string.IsNullOrEmpty(regionnumber)){
+        if (!string.IsNullOrEmpty(regionnumber))
+        {
             helplineno = regionnumber;
         }
     }
-    
+
     var keywords = string.Join(",", Model.Value<IEnumerable<string>>("keywords"));
 
     var threshold = Convert.ToDouble(
@@ -100,7 +107,7 @@
 }
 <!DOCTYPE html>
 <html lang="en-us">
-    
+
 <!-- headers-->
 <head>
     <meta charset="utf-8">
@@ -111,33 +118,36 @@
     <meta name="author" content="">
     <meta name="keywords" content="@keywords" />
     <meta name="description" content="@Model.Value("seoMetaDescription")">
-    
+
     @{
         var currentLang = "";
     }
-    @foreach (ILanguage language  in languages)
+    @foreach (ILanguage language in languages)
     {
         var defaultlang = Model.Url().Contains(language.IsoCode.ToLower());
         @if (!defaultlang)
-            {
-                <link rel="alternate" href="https://stx-technology.com/@language.IsoCode.ToLower()@mURLPath" hreflang="@language.IsoCode.ToLower()"/>
-            }
-            else{
-                <link rel="canonical" href="https://stx-technology.com/@language.IsoCode.ToLower()@mURLPath" hreflang="@language.IsoCode.ToLower()"/>
-                currentLang = language.IsoCode;
-            }
+        {
+            <link rel="alternate" href="https://stx-technology.com/@language.IsoCode.ToLower()@mURLPath" hreflang="@language.IsoCode.ToLower()" />
+        }
+        else
+        {
+            <link rel="canonical" href="https://stx-technology.com/@language.IsoCode.ToLower()@mURLPath" hreflang="@language.IsoCode.ToLower()" />
+            currentLang = language.IsoCode;
+        }
     }
-    
+
     <title>@home.Sitename - @Model.Name (@currentLang)</title>
-     <style>
-    .ps-panel--sidebar{    transform: translateX(-100%);}
+    <style>
+        .ps-panel--sidebar {
+            transform: translateX(-100%);
+        }
     </style>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     @Html.Raw(await runtimeMinifier.RenderCssHereAsync("registered-critical-css-bundle"))
-    
+
     <link rel="shortcut icon" type="image/x-icon" href="~/img/favicon.ico">
 
     <style>
@@ -148,11 +158,15 @@
     @RenderSection("Header", required: false)
 
     <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','@gtag');</script>
+    <script>
+        (function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            }); var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', '@gtag');</script>
     <!-- End Google Tag Manager -->
 
 </head>
@@ -162,11 +176,11 @@
         dd
     </a>
     }*@
-    
 
-    
+
+
 <body>
-    
+
     @* <div id="loader-wrapper">
     <div class="loader-section section-left"></div>
     <div class="loader-section section-right"></div>
@@ -314,12 +328,12 @@
 
         <div class="ps-promotions">
             <div class="container">
-                <div class="ps-collection" >
+                <div class="ps-collection">
                     @if (home.FooterBanner != null)
                     {
                         <div style="position: relative;">
-                        <img src="@home.FooterBanner.GetCropUrl(width: 650, height: 82, quality:80, furtherOptions: "&format=webp")" alt="promotion banner" title="promotion banner">
-                        <div class="tel" >Contact STX Team! @helplineno</div>
+                            <img src="@home.FooterBanner.GetCropUrl(width: 650, height: 82, quality:80, furtherOptions: "&format=webp")" alt="promotion banner" title="promotion banner">
+                            <div class="tel">Contact STX Team! @helplineno</div>
                         </div>
                     }
 
@@ -475,6 +489,11 @@
                     <textarea id="message" name="message" type="text" placeholder="Message"></textarea>
                 </div>
                 <button type="submit">Submit</button>
+                <p class="tp-text">
+                    This site is protected by reCAPTCHA and the Google
+                    <a href="https://policies.google.com/privacy">Privacy Policy</a> and
+                    <a href="https://policies.google.com/terms">Terms of Service</a> apply.
+                </p>
             }
         </div>
         <div class="btngetintouch"><a href="#">@home.GetInTouch</a></div>
@@ -493,13 +512,13 @@
     {
         <div id="eu-cookie-box" class="eu-cookie-box">
             <div class="content">
-            <div><p>This website uses a small number of functional cookies.</p><p>By continuing to browse the site you are agreeing to our use of these functional cookies.</p></div>
-            <div class="buttons-more">
-                <button type="button" class="ok-button button-1" id="eu-cookie-ok">OK</button>
-                <p><u><a class="learn-more" href="~/privacy-notice">Learn more</a></u></p>
+                <div><p>This website uses a small number of functional cookies.</p><p>By continuing to browse the site you are agreeing to our use of these functional cookies.</p></div>
+                <div class="buttons-more">
+                    <button type="button" class="ok-button button-1" id="eu-cookie-ok">OK</button>
+                    <p><u><a class="learn-more" href="~/privacy-notice">Learn more</a></u></p>
+                </div>
             </div>
         </div>
-    </div>
     }
 
 
@@ -507,7 +526,7 @@
     <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700&amp;amp;subset=latin-ext" rel="stylesheet">
     @Html.Raw(await runtimeMinifier.RenderCssHereAsync("registered-css-bundle"))
     @Html.Raw(await runtimeMinifier.RenderJsHereAsync("registered-js-bundle"))
-    
+
     <script type="text/javascript">
         function checkIfEmptyNull(e) {
             switch (e) {
@@ -578,31 +597,32 @@
 
 
     </script>
-    
-    @if(cookieconsent == null&& home.ShowCookieConsent){
+
+    @if (cookieconsent == null && home.ShowCookieConsent)
+    {
 
 
-    <script type="text/javascript">
-    $(document).ready(function () {
-        $('#eu-cookie-box').show();
-        $('#eu-cookie-ok').click(function () {
-            $.ajax({
-                cache: false,
-                type: 'POST',
-                url: '/cookieconsent',
-                dataType: 'text',
-                success: function (data) {
-                    $('#eu-cookie-box').hide();
-                },
-                failure: function () {
-                  
-                }
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $('#eu-cookie-box').show();
+                $('#eu-cookie-ok').click(function () {
+                    $.ajax({
+                        cache: false,
+                        type: 'POST',
+                        url: '/cookieconsent',
+                        dataType: 'text',
+                        success: function (data) {
+                            $('#eu-cookie-box').hide();
+                        },
+                        failure: function () {
+
+                        }
+                    });
+                });
             });
-    });
-    });
-</script>
- }
-    
+        </script>
+    }
+
     @RenderSection("footerscript", required: false)
     <script src="https://www.google.com/recaptcha/api.js?render=@_googleCaptchaSettings.Value.SiteKey"></script>
     <script>

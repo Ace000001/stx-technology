@@ -1439,16 +1439,22 @@ h2.pbheadingh2 {
   padding-top: 6px;
 }
 
-.pbformbox p {
-  font-size: 13px;
-  font-weight: bold;
-  color: #001138;
+.pbformbox p,
+.contact-form p.tp-text,
+.ewscontactpop p.tp-text {
+    font-size: 13px;
+    font-weight: bold;
+    color: #001138;
+}
+
+.ewscontactpop p.tp-text {
+    font-size: 8px;
 }
 
 .orderoptul {
-  list-style: none;
-  margin: 0 0 0 0;
-  padding: 0 0 0 0;
+    list-style: none;
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
 }
 
 .orderoptul li {

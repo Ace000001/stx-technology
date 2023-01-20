@@ -39,15 +39,15 @@ namespace TouchSystems.Helper
                         "~/plugins/sticky-sidebar/dist/sticky-sidebar.min.js",
                         "~/plugins/select2/dist/js/select2.full.min.js",
                         "~/plugins/gmap3.min.js",
-                        "~/scripts/js/main.js"
+                        "~/scripts/js/main.min.js"
                     });
 
                 _runtimeMinifier.CreateCssBundle("registered-critical-css-bundle",
                     BundlingOptions.OptimizedNotComposite,
                     new[] {
                         "~/plugins/bootstrap/css/bootstrap.min.css",
-                        "~/css/css/style.css",
-                        "~/css/css/electronic.css"
+                        "~/css/css/style.min.css",
+                        "~/css/css/electronic.min.css"
                     });
 
                 _runtimeMinifier.CreateCssBundle("registered-css-bundle",

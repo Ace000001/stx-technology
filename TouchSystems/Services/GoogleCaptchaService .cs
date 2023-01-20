@@ -26,7 +26,7 @@ namespace TouchSystems.Services
                 // Parameters: secret, response, remoteip
 
                 var remoteIp = _httpContext.HttpContext.Connection.RemoteIpAddress;
-                var url = $"https://www.google.com/recaptcha/api/siteverify?secret={_googleRECaptchaSettings.SiteKey}&response={token}&remoteip={remoteIp}";
+                var url = $"https://www.google.com/recaptcha/api/siteverify?secret={_googleRECaptchaSettings.SecretKey}&response={token}&remoteip={remoteIp}";
 
                 using (var client = new HttpClient())
                 {
