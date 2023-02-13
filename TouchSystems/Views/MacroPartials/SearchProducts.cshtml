@@ -65,7 +65,32 @@
     }
     </style>
     <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12 ">
-        <div class="ps-product3" id="ps-@prod.Id">
+        <a href="@prod.Url(PublishedUrlProvider)">
+            <div class="stxcontainer">
+                <div class="stxcard2">
+                    <div class="stxcard" id="ps-@prod.Id">
+                        <div class="stxcard3">
+                            <div class="stximgBx">
+                                @if (ps != null)
+                                {
+                                    var catImg = ps.GetCropUrl(width: 180, height: 180, quality:80, furtherOptions: "&format=webp") ?? "";
+                                    <img src="@catImg" alt="@prod.Name" title="@prod.Name" />
+                                }
+                            </div>
+                            <div class="stxcontentBx">
+                                <div class="stxwords">
+                                        <h2>@prod.Value("subTitle")</h2>
+                                </div><br>
+                                <div class="stxsize">
+                                        @prod.Value("contents")
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+        @*<div class="ps-product3" id="ps-@prod.Id">
             <div class="ps-product__thumbnail imgBx">
                 @if (ps != null)
                 {
@@ -76,7 +101,7 @@
             <div class="contentBx">
                 <a class="ps-product__title" href="@prod.Url(PublishedUrlProvider)">@prod.Name()</a>
             </div>
-        </div>
+        </div>*@
     </div>}
                     </div> }
                 else
@@ -109,4 +134,3 @@ else
     </nav>
 </div>}
 }
-
