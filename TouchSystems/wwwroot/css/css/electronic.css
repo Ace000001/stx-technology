@@ -656,7 +656,7 @@
   top: 17%;
   right: -222px;
   border-radius: 6px 6px 0 0;
-  z-index: 200;
+  z-index: 1000;
 }
 .rp-contactpop h3 {
   border-radius: 6px 6px 0 0;
