@@ -168,9 +168,6 @@
                     'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
         })(window, document, 'script', 'dataLayer', '@gtag');</script>
     <!-- End Google Tag Manager -->
-    <!-- Start of HubSpot Embed Code -->
-    <script type="text/javascript" id="hs-script-loader" async defer src="//js-na1.hsscripts.com/24232759.js"></script>
-    <!-- End of HubSpot Embed Code -->
 </head>
 @*@foreach (var (culture, infos) in Model.Cultures)
     {
@@ -459,46 +456,68 @@
 
     <div class="rp-contactpop fixed">
 
+        <div class="btngetintouch"><a href="#">@home.GetInTouch</a></div>
         <div class="ewscontactpop">
-            <h3>Give us a Call <br /> <span>@helplineno</span></h3>
+            <h3>Give us a Call</h3>
+            <p>
+                Feel free to discuss any
+                project-related questions
+                you may have.
+            </p>
+            <div class="phone">
+                <i class="fa fa-phone"></i>
+                <span>@helplineno</span>
+            </div>
             <div class="renseignement">
                 <div class="leavemsg">
-                    Or leave a message
+                    Quick quote request
                 </div>
-                <div class="response">@TempData["response"]</div>
             </div>
-            @using (Html.BeginUmbracoForm<TouchSystems.Controller.ContactFormController>(nameof(TouchSystems.Controller.ContactFormController.SubmitGetintouch)))
+            @if (TempData["submitted"] == null || !(bool)TempData["submitted"])
             {
-                <div class="">
-                    @Html.Hidden("CaptchaToken")
-                    @Html.Hidden("Threshold", threshold)
-                    @Html.Hidden("Country", System.Threading.Thread.CurrentThread.CurrentCulture.DisplayName)
-                    <input type="text" name="name" placeholder="Your name" />
-                    <input type="hidden" name="lastname" />
-                    <input type="hidden" name="product" />
-                </div>
-                <div class="">
-                    <input type="text" name="Company" placeholder="Company Name" />
-                </div>
-                <div class="">
-                    <input type="text" name="phone" placeholder="Phone number" />
-                </div>
-                <div class="">
-                    <input type="email" name="email" placeholder="E-mail" />
-                </div>
+                @using (Html.BeginUmbracoForm<TouchSystems.Controller.ContactFormController>(nameof(TouchSystems.Controller.ContactFormController.SubmitGetintouch)))
+                {
+                    <div class="">
+                        @Html.Hidden("CaptchaToken")
+                        @Html.Hidden("Threshold", threshold)
+                        @Html.Hidden("Country", System.Threading.Thread.CurrentThread.CurrentCulture.DisplayName)
+                        <input type="text" name="name" placeholder="Your name" />
+                        <input type="hidden" name="lastname" />
+                        <input type="hidden" name="product" />
+                        <div class="response">@TempData["response"]</div>
+                    </div>
+                    <div class="">
+                        <input type="text" name="Company" placeholder="Company Name" />
+                    </div>
+                    <div class="">
+                        <input type="text" name="phone" placeholder="Phone number" />
+                    </div>
+                    <div class="">
+                        <input type="email" name="email" placeholder="E-mail" />
+                    </div>
 
-                <div class="">
-                    <textarea id="message" name="message" type="text" placeholder="Message"></textarea>
-                </div>
-                <button type="submit">Submit</button>
-                <p class="tp-text">
-                    This site is protected by reCAPTCHA and the Google
-                    <a href="https://policies.google.com/privacy">Privacy Policy</a> and
-                    <a href="https://policies.google.com/terms">Terms of Service</a> apply.
+                    <div class="">
+                        <textarea id="message" name="message" type="text" placeholder="Message"></textarea>
+                    </div>
+                    <button type="submit">Submit</button>
+                    <p class="tp-text">
+                        This site is protected by reCAPTCHA and the Google
+                        <a href="https://policies.google.com/privacy">Privacy Policy</a> and
+                        <a href="https://policies.google.com/terms">Terms of Service</a> apply.
+                    </p>
+                }
+            }
+            else
+            {
+                <p>@TempData["response"]</p>
+                <p>
+                    Our team of experts is working
+                    on your request and we will get
+                    back to you with the informaon
+                    you need shortly.
                 </p>
             }
         </div>
-        <div class="btngetintouch"><a href="#">@home.GetInTouch</a></div>
     </div>
 
     <div id="langswitcher">
@@ -559,11 +578,15 @@
             }
             /**/
             $(".screensizebox").mouseenter(function () {
-                $(this).animate({ "right": "45px" }, "slow");
+                if (window.screen.width <= 1024) {
+                    $(this).animate({ "right": "70px" }, "slow");
+                }else{
+                    $(this).animate({ "right": "20%" }, "slow");
+                }
             }).mouseleave(function () {
                 setTimeout(function () {
                     if ($('.screensizebox:hover').length == 0) {
-                        $(".screensizebox").animate({ "right": "-137px" }, "slow").removeClass('visible');
+                        $(".screensizebox").animate({ "right": "-112px" }, "slow").removeClass('visible');
                     }
                 }, 2000)
 
@@ -572,7 +595,7 @@
 
             $(".btngetintouch").click(function () {
                 if ($(".rp-contactpop").hasClass('visible')) {
-                    $(".rp-contactpop").animate({ "right": "-222px" }, "slow").removeClass('visible');
+                    $(".rp-contactpop").animate({ "right": "-253px" }, "slow").removeClass('visible');
                 } else {
                     $(".rp-contactpop").animate({ "right": "0px" }, "slow").addClass('visible');
                 }
@@ -644,6 +667,9 @@
             getToken();
         });
     </script>
+    <!-- Start of HubSpot Embed Code -->
+    <script type="text/javascript" id="hs-script-loader" async defer src="//js-na1.hsscripts.com/24232759.js"></script>
+    <!-- End of HubSpot Embed Code -->
 </body>
 
 </html>

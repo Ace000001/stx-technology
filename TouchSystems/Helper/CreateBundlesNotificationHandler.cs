@@ -47,14 +47,14 @@ namespace TouchSystems.Helper
                     new[] {
                         "~/plugins/bootstrap/css/bootstrap.min.css",
                         "~/css/css/style.min.css",
-                        "~/css/css/electronic.min.css"
+                        "~/css/css/electronic.css",
+                        "~/plugins/font-awesome/css/font-awesome.min.css"
                     });
 
                 _runtimeMinifier.CreateCssBundle("registered-css-bundle",
                     BundlingOptions.OptimizedNotComposite,
                     new[] {
                         "~/plugins/nouislider/nouislider.min.css",
-                        "~/plugins/font-awesome/css/font-awesome.min.css",
                         "~/css/fonts/Linearicons/Linearicons/Font/demo-files/demo.css",
                         "~/plugins/owl-carousel/assets/owl.carousel.min.css",
                         "~/plugins/slick/slick/slick.css",

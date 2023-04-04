@@ -8,8 +8,10 @@
 
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Product>
 @inject IHttpContextAccessor HttpContextAccessor
-@{ Layout = "master.cshtml";
+@{
+    Layout = "master.cshtml";
 
+    var isNotSelected = string.IsNullOrEmpty(HttpContextAccessor.HttpContext.Request.Query["size"]);
     var standardfeatures = Model.Parent<Products>().StandardFeatures;
     var commonspecs = Model.Parent<Products>().Specifications;
     var httpContext = HttpContextAccessor.HttpContext;
@@ -22,12 +24,12 @@
     //    var ordoptions = Model
     //.Children()
     //.Where(x => x.IsVisible());
-    var ssobjlist = site.Children.Where(x => x.IsVisible() && x.Id == 1207).FirstOrDefault(); 
+    var ssobjlist = site.Children.Where(x => x.IsVisible() && x.Id == 1207).FirstOrDefault();
     bool sizeselected = false;
     var screensize = Model.ModelNumber; /* "BENEFITS"; */
     var modelno = Model.ModelNumber;
     var producttype = Model.ProductType;
-   /*  var productmenuname = Model.MenuName;*/
+    /*  var productmenuname = Model.MenuName;*/
     var screenno = "";
     var partno = "";
     var actualscreensize = "";
@@ -39,10 +41,10 @@
     var touchtypes = Model.TouchType;
 
 
-   /* 2022-12-01 David added*/
+    /* 2022-12-01 David added*/
     productdescription = productdescription.ToString().Substring(Model.ModelNumber.ToString().Length, (productdescription.ToString().Length - Model.ModelNumber.ToString().Length));
- 
-    
+
+
     if (httpContext != null && !string.IsNullOrEmpty(httpContext.Request.Query["size"]))
     {
         string sskey = httpContext.Request.Query["size"];
@@ -52,7 +54,7 @@
             var ssobj = ssobjlist.Children().Where(x => x.IsVisible() && x.Name.ToString().ToLower() == sskey.ToLower()).FirstOrDefault();
             if (ssobj != null)
             {
-                
+
                 sizeselected = true;
                 screensize = ssobj.Value("screenSizeInch").ToString() + " inch";
                 actualscreensize = ssobj.Value("screenSizeInch").ToString();
@@ -112,8 +114,8 @@
     {
 
         <style>
-                #headerimage{
-                    background-image:url(@herobackground) !important
+            #headerimage {
+                background-image: url(@herobackground) !important
             }
         </style>
     }
@@ -122,7 +124,7 @@
     {
         <style>
             .screensizebox {
-                right: 45px
+                right: 70px
             }
         </style>
     }
@@ -130,24 +132,24 @@
     {
         <style>
             .screensizebox {
-                right: -137px
+                right: -112px
             }
         </style>
     }
 
-<style>
+    <style>
 
 
-      
-</style>
+
+    </style>
 
     <style>
-      #tab-6  ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+        #tab-6 ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
             color: white !important;
             opacity: 1 !important; /* Firefox */
         }
 
-      #tab-6 :-ms-input-placeholder { /* Internet Explorer 10-11 */
+        #tab-6 :-ms-input-placeholder { /* Internet Explorer 10-11 */
             color: white !important;
             opacity: 1 !important;
         }
@@ -157,11 +159,13 @@
             opacity: 1 !important; /* Firefox */
         }
 
-      #tab-6  .form-control:focus {
+        #tab-6 .form-control:focus {
             color: white;
         }
 
-        #homepage-7{background-color: #fafbff;}
+        #homepage-7 {
+            background-color: #fafbff;
+        }
     </style>
 
 }
@@ -169,12 +173,14 @@
 
 <input type="hidden" name="currentpageid" id="currentpageid" value="@Model.Id" />
 @section BannerText{
-    <h1>@Model.ModelNumber
-    <span>@productdescription<span></h1>
+    <h1>
+        @Model.ModelNumber
+        <span>@productdescription<span>
+    </h1>
 }
 
 <div class="ps-page--product">
-    
+
     <div class="ps-container">
         <div class="ps-page__container">
             <div class="ps-page__left">
@@ -187,35 +193,37 @@
                         {
                             <div class id="productvideobx">
                                 @*<h1 class="product-welcome">
-                                      test to see how it might look
-                                    Please select a Display Size from the Right Side Screen Size Selector Menu
-                                    </h1>*@
+                            test to see how it might look
+                            Please select a Display Size from the Right Side Screen Size Selector Menu
+                            </h1>*@
                                 @if (Model.CoverPhoto != null)
                                 {
-                                    <div class="item" style="text-align: center;"><a href="@Model.CoverPhoto.Url()"><img src="@Model.CoverPhoto.GetCropUrl(width: 350, height: 350, quality:80, furtherOptions: "&format=webp")" alt="@Model.Name" title="@Model.Name" style="max-width:350px"></a></div>
+                                    <div class="ps-product__thumbnail" style="max-width:70%;margin:auto" data-vertical="false">
+                                        <figure>
+                                            <div class="ps-wrapper">
+                                                <div class="ps-product__gallery" data-arrow="true">
+                                                    <div class="item"><a href="@Model.CoverPhoto.Url()"><img src="@Model.CoverPhoto.GetCropUrl(width: 350, height: 350, quality:80, furtherOptions: "&format=webp")" alt="@Model.Name" title="@Model.Name"></a></div>
+
+                                                </div>
+                                            </div>
+                                        </figure>
+                                    </div>
                                 }
-                                
-                               
-                                 
-                                     
-                                      @if (producttype != "Accessory")
-                                        {
-                                             <h3  class id="product-welcome">
-                                                Welcome to the @screensize product page.
-                                            </h3>
-                                            <h4  class id="product-welcome">
-                                                Please click on a display size in the "Screen Sizes" selector<br />
-                                                on the righthand side of the page
-                                                <span class="arrow"></span>
-                                            </h4>
-                                        }
-                                        else
-                                        {
-                                        
-                                        }
-                                
-                         
-                                
+                                @if (producttype != "Accessory")
+                                {
+                                    <h3 class id="product-welcome">
+                                        Welcome to the @screensize product page.
+                                    </h3>
+                                    <h4 class id="product-welcome">
+                                        Please click on a display size in the "Screen Sizes" selector<br />
+                                        on the righthand side of the page
+                                        <span class="arrow"></span>
+                                    </h4>
+                                }
+                                else
+                                {
+
+                                }
                             </div>
                         }
                         else
@@ -309,23 +317,23 @@
                         <ul class="ps-tab-list">
                             <li class="@(sizeselected == false ? "active" : "")"><a href="#tab-1">BENEFITS</a></li>
                             <li class="@(sizeselected == true ? "active" : "")"><a href="#tab-2">ORDER OPTIONS</a></li>
-                             @if (producttype != "Accessory")
-                                                                {
-                                                                      <li><a href="#tab-6">PRODUCT BUILDER</a></li>
-}
-                          
+                            @if (producttype != "Accessory")
+                            {
+                                <li><a href="#tab-6">PRODUCT BUILDER</a></li>
+                            }
+
                             <li><a href="#tab-3">SPECIFICATIONS</a></li>
-                             @if (producttype != "Accessory")
-                                                                {
-                                                                     <li><a href="#tab-4">ACCESSORIES</a></li>
-}
-                           
+                            @if (producttype != "Accessory")
+                            {
+                                <li><a href="#tab-4">ACCESSORIES</a></li>
+                            }
+
                             <li><a href="#tab-5">SIMILAR PRODUCTS</a></li>
                         </ul>
                         <div class="ps-tabs">
                             <div class="ps-tab @(sizeselected == false ? "active" : "")" id="tab-1">
                                 <div class="ps-document">
-                                  
+
                                     @{
                                         var benefittopphoto = Model.Value<IPublishedContent>("benefitTopPhoto");
                                         var beneiftbottomphotos = Model.Value<IEnumerable<IPublishedContent>>("benefitBottomPhotos");
@@ -337,22 +345,22 @@
                                         </div>
                                     }
                                     @Html.Raw(Model.Value("benefitText1"))
-                                    @Html.Raw(Model.Value("benefitText2"))      
+                                    @Html.Raw(Model.Value("benefitText2"))
                                     <div class="benefits-images">
-                    
-                                         @if (beneiftbottomphotos != null)
+
+                                        @if (beneiftbottomphotos != null)
+                                        {
+                                            foreach (var item in beneiftbottomphotos)
                                             {
-                                                foreach (var item in beneiftbottomphotos)
+                                                if (item != null)
                                                 {
-                                                    if (item != null)
-                                                    {
-                                                        <img src="@item.GetCropUrl(width: 260, height: 200, quality:80, furtherOptions: "&format=webp")" alt="@item.Name" title="@item.Name" style="width:260px; height:200px;" />
-                                                    }
+                                                    <img src="@item.GetCropUrl(width: 260, height: 200, quality:80, furtherOptions: "&format=webp")" alt="@item.Name" title="@item.Name" style="width:260px; height:200px;" />
                                                 }
                                             }
-                                    
+                                        }
+
                                     </div>
-                                   
+
                                 </div>
                             </div>
                             <div class="ps-tab @(sizeselected == true ? "active" : "")" id="tab-2">
@@ -383,7 +391,7 @@
                                                                         @if (ordoptionImage != null)
                                                                         {
                                                                             <img src="@ordoptionImage.GetCropUrl(width: 200, height: 200, quality:80, furtherOptions: "&format=webp")" alt="@ordoptionImage.Name" title="@ordoptionImage.Name" style="max-width:200px" />
-                                                                           
+
                                                                         }
 
                                                                     </div>
@@ -483,82 +491,82 @@
 
 
                                                 @*@if (touchlist != null)
-                                                    {
-                                                        foreach (var touchtype in touchlist.Children.Where(x => x.IsVisible()))
-                                                        {
-                                                            var ttp = touchtype.Value("description").ToString();
-                                                            var ttt = touchtype.Value("fullName").ToString();
-                                                            if (ttp == "RT" && Convert.ToInt32(screenno) >= 32)
-                                                            {
-                                                                continue;
-                                                            }
+                                            {
+                                            foreach (var touchtype in touchlist.Children.Where(x => x.IsVisible()))
+                                            {
+                                            var ttp = touchtype.Value("description").ToString();
+                                            var ttt = touchtype.Value("fullName").ToString();
+                                            if (ttp == "RT" && Convert.ToInt32(screenno) >= 32)
+                                            {
+                                            continue;
+                                            }
 
-                                                            if (ttp == "PT" && Convert.ToInt32(screenno) <= 8)
-                                                            {
-                                                                continue;
-                                                            }
+                                            if (ttp == "PT" && Convert.ToInt32(screenno) <= 8)
+                                            {
+                                            continue;
+                                            }
 
-                                                            if (ttp == "NT" && Convert.ToInt32(screenno) <= 32)
-                                                            {
-                                                                continue;
-                                                            }
-
-
-                                                            <div class="row tab2options">
-                                                                <div class="col-xl-5 col-lg-5 col-md-5 col-sm-12 col-lg-5">
-                                                                    <div class="ps-product2">
-                                                                        <div class="ps-product__thumbnail">
-                                                                            @{
-                                                                                var modelimages = Model.TouchType.ToList().Where(x => x.Value("screenResolutionOpt").ToString() == aspectratio && x.Value("screenSize").ToString() == actualscreensize);
-                                                                                if (modelimages.Count() == 0)
-                                                                                {
-                                                                                    modelimages = Model.TouchType.ToList().Where(x => x.Value("screenResolutionOpt").ToString() == aspectratio);
-                                                                                }
-                                                                            }
+                                            if (ttp == "NT" && Convert.ToInt32(screenno) <= 32)
+                                            {
+                                            continue;
+                                            }
 
 
-
-                                                                            @if (modelimages != null)
-                                                                            {
-                                                                                foreach (var tt in modelimages.Take(1))
-                                                                                {
-                                                                                    var ordoptionImage = tt.Value<IPublishedContent>("itemPhoto");
-                                                                                    if (ordoptionImage != null)
-                                                                                    {
-                                                                                        <img src="@ordoptionImage.Url()" alt="" />
-                                                                                    }
-
-                                                                                }
-                                                                            }
+                                            <div class="row tab2options">
+                                            <div class="col-xl-5 col-lg-5 col-md-5 col-sm-12 col-lg-5">
+                                            <div class="ps-product2">
+                                            <div class="ps-product__thumbnail">
+                                            @{
+                                            var modelimages = Model.TouchType.ToList().Where(x => x.Value("screenResolutionOpt").ToString() == aspectratio && x.Value("screenSize").ToString() == actualscreensize);
+                                            if (modelimages.Count() == 0)
+                                            {
+                                            modelimages = Model.TouchType.ToList().Where(x => x.Value("screenResolutionOpt").ToString() == aspectratio);
+                                            }
+                                            }
 
 
-                                                                        </div>
-                                                                        <div class="ps-product__container">
-                                                                            <div class="ps-product__content touchtype">
-                                                                                <i class="fa fa-eye"></i>  @ttt
 
-                                                                            </div>
+                                            @if (modelimages != null)
+                                            {
+                                            foreach (var tt in modelimages.Take(1))
+                                            {
+                                            var ordoptionImage = tt.Value<IPublishedContent>("itemPhoto");
+                                            if (ordoptionImage != null)
+                                            {
+                                            <img src="@ordoptionImage.Url()" alt="" />
+                                            }
 
-                                                                        </div>
-                                                                    </div>
-
-                                                                </div>
-                                                                <div class="col-xl-7 col-lg-7 col-md-7 col-sm-12 col-lg-7">
-
-
-                                                                    @if (cpulist != null)
-                                                                    {
-
-                                                                        @foreach (var item in cpulist.Children.Where(x => x.IsVisible()))
-                                                                        {
-
-                                                                            <div class="ordoptmodno">@modelno-@item.Name()-@ttp <i class="fa fa-square"></i> @item.Value("cPUDescription")</div>}}
-
-                                                                </div>
-                                                            </div>}
+                                            }
+                                            }
 
 
-                                                    }*@
+                                            </div>
+                                            <div class="ps-product__container">
+                                            <div class="ps-product__content touchtype">
+                                            <i class="fa fa-eye"></i>  @ttt
+
+                                            </div>
+
+                                            </div>
+                                            </div>
+
+                                            </div>
+                                            <div class="col-xl-7 col-lg-7 col-md-7 col-sm-12 col-lg-7">
+
+
+                                            @if (cpulist != null)
+                                            {
+
+                                            @foreach (var item in cpulist.Children.Where(x => x.IsVisible()))
+                                            {
+
+                                            <div class="ordoptmodno">@modelno-@item.Name()-@ttp <i class="fa fa-square"></i> @item.Value("cPUDescription")</div>}}
+
+                                            </div>
+                                            </div>}
+
+
+                                            }*@
 
 
 
@@ -573,7 +581,8 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>}
+                                        </div>
+                                    }
 
 
                                     @if (screenno != "")
@@ -588,7 +597,8 @@
                                                     <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6 col-lg-3 moreoptionslist">
                                                         <h4>@moitem.OptionTitle</h4>
                                                         @moitem.OptionDescription
-                                                    </div>}
+                                                    </div>
+                                                }
                                             }
 
                                             @if (Model.MoreOption != null)
@@ -598,7 +608,8 @@
                                                     <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6 col-lg-3 moreoptionslist">
                                                         <h4>@moreoption.OptionTitle</h4>
                                                         @moreoption.OptionDescription
-                                                    </div>}
+                                                    </div>
+                                                }
                                             }
                                         </div>
 
@@ -619,10 +630,10 @@
                                 else
                                 {
                                     @Html.Raw(displayinfo)
-                                     @if (producttype != "Monitor")
-                                        {
-                                            @commonspecs
-                                        }
+                                    @if (producttype != "Monitor")
+                                    {
+                                        @commonspecs
+                                    }
                                     @Html.GetGridHtml(Model, "specification", "bootstrap3-fluid")
 
                                 }
@@ -654,7 +665,9 @@
                                                         <div class="pblist">
                                                             @foreach (var item in Model.ModelType.Where(x => x.IsVisible()))
                                                             {
-                                                                <label><input type="checkbox" name="ModelType" value="@item.Value("Description")" class="" rel="@item.Id" data-val="@item.Value("Value")" checked="@item.Value("isSelected")"  /> @item.Value("Description")</label><br />
+                                                                <label><input type="checkbox" name="ModelType" value="@item.Value("Description")" class="" rel="@item.Id" data-val="@item.Value("Value")" checked="@item.Value("isSelected")" /> @item.Value("Description")</label>
+
+                                                                <br />
                                                             }
                                                         </div>
                                                     </div>
@@ -676,7 +689,9 @@
                                                         <div class="pblist">
                                                             @foreach (var item in kvmextendertype)
                                                             {
-                                                                <label><input type="checkbox" name="KVMExtender" value="@item.Value("Description")" class="" rel="@item.Id" data-val="@item.Value("Value")" checked="@item.Value("isSelected")" /> @item.Value("Description")</label><br />
+                                                                <label><input type="checkbox" name="KVMExtender" value="@item.Value("Description")" class="" rel="@item.Id" data-val="@item.Value("Value")" checked="@item.Value("isSelected")" /> @item.Value("Description")</label>
+
+                                                                <br />
                                                             }
                                                         </div>
                                                     </div>
@@ -694,7 +709,9 @@
                                                         <div class="pblist">
                                                             @foreach (var item in Model.ScreenType.Where(x => x.IsVisible()))
                                                             {
-                                                                <label><input type="radio" name="ScreenType" class="updateformchekbox " value="@item.Value("Description")" rel="@item.Value("Value")" checked="@item.Value("isSelected")" /> @item.Value("Description")</label><br />
+                                                                <label><input type="radio" name="ScreenType" class="updateformchekbox " value="@item.Value("Description")" rel="@item.Value("Value")" checked="@item.Value("isSelected")" /> @item.Value("Description")</label>
+
+                                                                <br />
                                                             }
                                                         </div>
                                                     </div>
@@ -714,7 +731,9 @@
                                                         <div class="pblist">
                                                             @foreach (var item in Model.ScreenBrightness.Where(x => x.IsVisible()))
                                                             {
-                                                                <label><input type="radio" name="ScreenBrightness" value="@item.Value("Description")" class="" checked="@item.Value("isSelected")"  /> @item.Value("Description")</label><br />
+                                                                <label><input type="radio" name="ScreenBrightness" value="@item.Value("Description")" class="" checked="@item.Value("isSelected")" /> @item.Value("Description")</label>
+
+                                                                <br />
                                                             }
                                                         </div>
                                                     </div>
@@ -733,7 +752,9 @@
                                                         <div class="pblist">
                                                             @foreach (var item in Model.CPU.Where(x => x.IsVisible()))
                                                             {
-                                                                <label><input type="radio" name="CPU" value="@item.Value("CPUDescription")" rel="@item.Value("CPUName")" class="" checked="@item.Value("isSelected")" /> @item.Value("CPUDescription")</label><br />
+                                                                <label><input type="radio" name="CPU" value="@item.Value("CPUDescription")" rel="@item.Value("CPUName")" class="" checked="@item.Value("isSelected")" /> @item.Value("CPUDescription")</label>
+
+                                                                <br />
                                                             }
                                                         </div>
                                                     </div>
@@ -752,7 +773,9 @@
                                                         <div class="pblist">
                                                             @foreach (var item in Model.RAM.Where(x => x.IsVisible()))
                                                             {
-                                                                <label><input type="radio" name="RAM" value="@item.Value("Description")" class="r_ram " checked="@item.Value("isSelected")" /> @item.Value("Description")</label><br />
+                                                                <label><input type="radio" name="RAM" value="@item.Value("Description")" class="r_ram " checked="@item.Value("isSelected")" /> @item.Value("Description")</label>
+
+                                                                <br />
                                                             }
                                                         </div>
                                                     </div>
@@ -770,7 +793,9 @@
                                                         <div class="pblist">
                                                             @foreach (var item in Model.SSD.Where(x => x.IsVisible()))
                                                             {
-                                                                <label><input type="radio" name="SSD" value="@item.Value("Description")" class="" checked="@item.Value("isSelected")" /> @item.Value("Description")</label><br />
+                                                                <label><input type="radio" name="SSD" value="@item.Value("Description")" class="" checked="@item.Value("isSelected")" /> @item.Value("Description")</label>
+
+                                                                <br />
                                                             }
                                                         </div>
                                                     </div>
@@ -790,7 +815,9 @@
 
                                                             @foreach (var item in Model.OS.Where(x => x.IsVisible()))
                                                             {
-                                                                <label><input type="radio" name="OS" value="@item.Value("Description")" class="" checked="@item.Value("isSelected")" /> @item.Value("Description")</label><br />
+                                                                <label><input type="radio" name="OS" value="@item.Value("Description")" class="" checked="@item.Value("isSelected")" /> @item.Value("Description")</label>
+
+                                                                <br />
                                                             }
                                                         </div>
                                                     </div>
@@ -810,7 +837,9 @@
                                                         <div class="pblist">
                                                             @foreach (var item in Model.VideoOutput.Where(x => x.IsVisible()))
                                                             {
-                                                                <label><input type="radio" name="VideoOutput" value="@item.Value("Description")" class="" rel="@item.Id" checked="@item.Value("isSelected")" /> @item.Value("Description")</label><br />
+                                                                <label><input type="radio" name="VideoOutput" value="@item.Value("Description")" class="" rel="@item.Id" checked="@item.Value("isSelected")" /> @item.Value("Description")</label>
+
+                                                                <br />
                                                             }
                                                         </div>
                                                     </div>
@@ -833,7 +862,9 @@
                                                         {
                                                             @foreach (var item in Model.NetworkEthernet.Where(x => x.IsVisible()))
                                                             {
-                                                                <label><input type="radio" name="NetworkEthernet" value="@item.Value("Description")" class=""  /> @item.Value("Description")</label><br />
+                                                                <label><input type="radio" name="NetworkEthernet" value="@item.Value("Description")" class="" /> @item.Value("Description")</label>
+
+                                                                <br />
                                                             }
                                                         }
 
@@ -841,7 +872,9 @@
                                                         {
                                                             @foreach (var item in Model.NetworkType.Where(x => x.IsVisible()))
                                                             {
-                                                                <label><input type="checkbox" name="NetworkType" value="@item.Value("Description")" rel="@item.Id" class="" checked="@item.Value("isSelected")" /> @item.Value("Description")</label><br />
+                                                                <label><input type="checkbox" name="NetworkType" value="@item.Value("Description")" rel="@item.Id" class="" checked="@item.Value("isSelected")" /> @item.Value("Description")</label>
+
+                                                                <br />
                                                             }
                                                         }
 
@@ -884,7 +917,7 @@
                                                                 <label>
                                                                     @item.Value("Description")
                                                                     <br />
-                                                                    <input type="radio" name="RS232" value="@item.Value("Description")" class=""  />
+                                                                    <input type="radio" name="RS232" value="@item.Value("Description")" class="" />
                                                                 </label>
                                                             }
                                                         </div>
@@ -904,7 +937,9 @@
                                                         <div class="pblist">
                                                             @foreach (var item in Model.PowerInput.Where(x => x.IsVisible()))
                                                             {
-                                                                <label><input type="radio" name="PowerInput" value="@item.Value("Description")" class=""  /> @item.Value("Description")</label><br />
+                                                                <label><input type="radio" name="PowerInput" value="@item.Value("Description")" class="" /> @item.Value("Description")</label>
+
+                                                                <br />
                                                             }
                                                         </div>
                                                     </div>
@@ -913,7 +948,7 @@
 
                                             <hr />
                                             <h2 class="pbheadingh2">ENVIRONMENTAL</h2>
-                                            
+
                                             @if ((Model.Mounting != null) && (Model.Mounting.Count() > 0))
                                             {
                                                 <div class="row pbrow">
@@ -926,7 +961,9 @@
 
                                                             @foreach (var item in Model.Mounting.Where(x => x.IsVisible()))
                                                             {
-                                                                <label><input type="radio" name="Mounting" value="@item.Value("Description")" class="" checked="@item.Value("isSelected")" /> @item.Value("Description")</label><br />
+                                                                <label><input type="radio" name="Mounting" value="@item.Value("Description")" class="" checked="@item.Value("isSelected")" /> @item.Value("Description")</label>
+
+                                                                <br />
                                                             }
                                                         </div>
                                                     </div>
@@ -945,7 +982,9 @@
 
                                                             @foreach (var item in Model.Stainless.Where(x => x.IsVisible()))
                                                             {
-                                                                <label><input type="radio" name="Stainless" value="@item.Value("Description")" class="" checked="@item.Value("isSelected")" /> @item.Value("Description")</label><br />
+                                                                <label><input type="radio" name="Stainless" value="@item.Value("Description")" class="" checked="@item.Value("isSelected")" /> @item.Value("Description")</label>
+
+                                                                <br />
                                                             }
                                                         </div>
                                                     </div>
@@ -963,7 +1002,9 @@
                                                         <div class="pblist">
                                                             @foreach (var item in Model.Finish.Where(x => x.IsVisible()))
                                                             {
-                                                                <label><input type="radio" name="Finish" value="@item.Value("Description")" class="" checked="@item.Value("isSelected")" /> @item.Value("Description")</label><br />
+                                                                <label><input type="radio" name="Finish" value="@item.Value("Description")" class="" checked="@item.Value("isSelected")" /> @item.Value("Description")</label>
+
+                                                                <br />
                                                             }
                                                         </div>
                                                     </div>
@@ -1167,16 +1208,19 @@
                                                 </div>
                                                 <div style="clear:both"></div>
                                                 <br />
-                                                
+
                                                 <p style="margin-left:10px">
                                                     <h3>Request a Quick Quote</h3><br />
                                                     Please complete the section below and we will send you a quote or if needed,<br />
                                                     we will get in contact with you for more information, as quickly as we possibly can.
                                                 </p>
                                                 <div class="contact-form">
-                                                    @{ await Html.RenderPartialAsync("Partials/ProductInquiry", new ContactFromVM(){
-                                                        Threshold = threshold,
-                                                    }); }
+                                                    @{
+                                                        await Html.RenderPartialAsync("Partials/ProductInquiry", new ContactFromVM()
+                {
+                    Threshold = threshold,
+                });
+                                                    }
                                                 </div>
 
 
@@ -1192,7 +1236,8 @@
                             <div class="ps-tab" id="tab-4">
                                 <div class="">
                                     <div class="row">
-                                       @if (Model.AccessoryProduct != null){
+                                        @if (Model.AccessoryProduct != null)
+                                        {
                                             foreach (Product product in Model.AccessoryProduct)
                                             {
                                                 var ps = product.Value<IPublishedContent>("CoverPhoto");
@@ -1206,7 +1251,7 @@
                                                         <div class="ps-product__thumbnail">
                                                             @if (ps != null)
                                                             {
-                                                                <a href="javascript:;"><img src="@ps.GetCropUrl(quality:80, furtherOptions: "&format=webp")" alt="@product.Name" title="@product.Name"/></a>
+                                                                <a href="javascript:;"><img src="@ps.GetCropUrl(quality:80, furtherOptions: "&format=webp")" alt="@product.Name" title="@product.Name" /></a>
                                                             }
 
                                                         </div>
@@ -1238,14 +1283,16 @@
                                                     <div class="ps-product__thumbnail">
                                                         @if (ps != null)
                                                         {
-                                                            <a href="@product.Url()"><img src="@ps.GetCropUrl(quality:80, furtherOptions: "&format=webp")" alt="@product.Name" title="@product.Name"/></a>}
+                                                            <a href="@product.Url()"><img src="@ps.GetCropUrl(quality:80, furtherOptions: "&format=webp")" alt="@product.Name" title="@product.Name" /></a>
+                                                        }
 
                                                     </div>
                                                     <div class="ps-product__descr">
                                                         @product.ProductName
                                                     </div>
                                                 </div>
-                                            </div>}
+                                            </div>
+                                        }
                                     }
 
                                 </div>
@@ -1256,24 +1303,27 @@
                 </div>
             </div>
             <div class="ps-page__right2">
-             @if (producttype != "Accessory")
-                                                                {
-                <aside class="widget widget_same-brand">
-                    <div class="screensizebox  visible" > 
-                        <div class="btnscreensizes" style="background-blend-mode: normal;"><a href="#" style="display: block; width: 100%; height: 100%; ">Screen Sizes</a></div>
-                        <div>
-                            @if ((Model.ScreenSizes != null) && (Model.ScreenSizes.Count() > 0))
-                            {
-                                @await Html.PartialAsync("~/Views/Partials/Navigation/GetScreenSizesModel.cshtml", Model.ScreenSizes)
-                                                                                                                                                                                                }
-                            else
-                            {
-                                @await Html.PartialAsync("~/Views/Partials/Navigation/GetScreenSizes.cshtml")
-                                                                                                    }
+                @if (producttype != "Accessory")
+                {
+                    <aside class="widget widget_same-brand">
+                        <div class="screensizebox  visible">
+                            <div class="btnscreensizes" style="background-blend-mode: normal;">
+                                <a class="" href="#" style="display: block;"></a>
+                            </div>
+                            <div>
+                                @if ((Model.ScreenSizes != null) && (Model.ScreenSizes.Count() > 0))
+                                {
+                                    @await Html.PartialAsync("~/Views/Partials/Navigation/GetScreenSizesModel.cshtml", Model.ScreenSizes)
+                                }
+                                else
+                                {
+                                    @await Html.PartialAsync("~/Views/Partials/Navigation/GetScreenSizes.cshtml")
+                                }
 
+                            </div>
                         </div>
-                    </div>
-                </aside>}
+                    </aside>
+                }
             </div>
 
         </div>
@@ -1281,6 +1331,31 @@
     </div>
 </div>
 @section footerscript{
+    <script>
+        $(()=>{
+            $("a[href='#tab-2'],a[href='#tab-6'],a[href='#tab-3']").click(()=>{
+                if (window.screen.width <= 1024) {
+                    $(".screensizebox").animate({ "right": "70px" }, "slow");
+                }else{
+                    $(".screensizebox").animate({ "right": "20%" }, "slow");
+                }
+            });
+
+            if("@isNotSelected" == "True"){
+                if (window.screen.width <= 1024) {
+                    $(".screensizebox").animate({ "right": "70px" }, "slow");
+                }else{
+                    $(".screensizebox").animate({ "right": "20%" }, "slow");
+                }
+            }
+            
+            if(window.screen.width <= 768){
+                $(".btnscreensizes a").css("height", "82px").text("Display Sizes Menu");
+            }else{
+                $(".btnscreensizes a").css("height", "59px").text("Display Sizes");
+            }
+        });
+    </script>
     <script>
         let str__screentype = "";
         let str__screenbrightness = "";
@@ -1313,7 +1388,7 @@
             $("input:radio[name=USB]:first").attr('checked', true);
             $("input:radio[name=RS232]:first").attr('checked', true);
             $("input:radio[name=PowerInput]:first").attr('checked', true);
-             $("input:radio[name=Mounting]:first").attr('checked', true);
+            $("input:radio[name=Mounting]:first").attr('checked', true);
 
             var screentype = $("input:radio[name=ScreenType]:checked");
             var ScreenBrightness = $("input:radio[name=ScreenBrightness]:checked");
@@ -1334,16 +1409,16 @@
             var Finish = $("input:radio[name=Finish]:checked");
 
             $(screentype).attr('checked', true);
-           // $(ScreenBrightness).attr('checked', true);
-           // $(CPU).attr('checked', true);
+            // $(ScreenBrightness).attr('checked', true);
+            // $(CPU).attr('checked', true);
             $(RAM).attr('checked', true);
             $(SSD).attr('checked', true);
             $(OS).attr('checked', true);
-         //   $(VideoOutput).attr('checked', true);
+            //   $(VideoOutput).attr('checked', true);
             //$(ModelType).attr('checked', true);
             //$(KVMExterderType).attr('checked', true);
             $(NetworkEthernet).attr('checked', true);
-          //  $(NetworkType).attr('checked', true);
+            //  $(NetworkType).attr('checked', true);
             $(USB).attr('checked', true);
             $(RS232).attr('checked', true);
             $(PowerInput).attr('checked', true);
@@ -1379,7 +1454,7 @@
             str__ram = $(RAM).val();
             str__ssd = $(SSD).val();
             str__os = $(OS).val();
-           // str__videooutput = $(VideoOutput).val();
+            // str__videooutput = $(VideoOutput).val();
             //str__modeltype = $(ModelType).val();
             //str__kvmexterdertype = $(KVMExterderType).val();
             str__networkethernet = $(NetworkEthernet).val();
@@ -1393,63 +1468,63 @@
 
 
             $('input[name=VideoOutput]').each(function () {
-                   var netid = $(this).attr("rel");
-                    if (this.checked) {
-                        //alert($(this).val());
-                        $("#videooutput_" + netid).show();
-                        str__videooutput += $(this).val() + ", ";
-                    } else {
-                        $("#videooutput_" + netid).hide();
-                    }
+                var netid = $(this).attr("rel");
+                if (this.checked) {
+                    //alert($(this).val());
+                    $("#videooutput_" + netid).show();
+                    str__videooutput += $(this).val() + ", ";
+                } else {
+                    $("#videooutput_" + netid).hide();
+                }
             });
 
 
 
             $('input[name=NetworkType]').each(function () {
-                   var netid = $(this).attr("rel");
-                    if (this.checked) {
-                        //alert($(this).val());
-                        $("#network_" + netid).show();
-                        str__networktype += $(this).val() + ", ";
-                    } else {
-                        $("#network_" + netid).hide();
-                    }
+                var netid = $(this).attr("rel");
+                if (this.checked) {
+                    //alert($(this).val());
+                    $("#network_" + netid).show();
+                    str__networktype += $(this).val() + ", ";
+                } else {
+                    $("#network_" + netid).hide();
+                }
             });
 
             $('input[name=ModelType]').each(function () {
-              
-                    var netid = $(this).attr("rel");
-                    var mtval = $(this).attr("data-val");
-                    if (this.checked) {
-                        //alert($(this).val());
-                        $("#modeltype_" + netid).show();
-                        $("#optopms-" + mtval).show();
-                        str__modeltype += $(this).val() + ", ";
-                        str__modeltypev = mtval + "-";
-                    } else {
-                        $("#modeltype_" + netid).hide();
-                        $("#optopms-" + mtval).hide();
-                        str__modeltypev = "";
-                    }
-                    str__modelname = $("#txtmodelno").html();
+
+                var netid = $(this).attr("rel");
+                var mtval = $(this).attr("data-val");
+                if (this.checked) {
+                    //alert($(this).val());
+                    $("#modeltype_" + netid).show();
+                    $("#optopms-" + mtval).show();
+                    str__modeltype += $(this).val() + ", ";
+                    str__modeltypev = mtval + "-";
+                } else {
+                    $("#modeltype_" + netid).hide();
+                    $("#optopms-" + mtval).hide();
+                    str__modeltypev = "";
+                }
+                str__modelname = $("#txtmodelno").html();
             });
 
             $('input[name=KVMExtender]').each(function () {
-                  var netid = $(this).attr("rel");
-                    var mtval = $(this).attr("data-val");
+                var netid = $(this).attr("rel");
+                var mtval = $(this).attr("data-val");
 
-                    if (this.checked) {
-                        //alert($(this).val());
-                        $("#kvmextendertype_" + netid).show();
-                        $("#optopms-" + mtval).show();
-                        str__kvmexterdertype += $(this).val() + ", ";
-                        str__kvmexterdertypev = mtval + "-";
-                    } else {
-                        $("#kvmextendertype_" + netid).hide();
-                        $("#optopms-" + mtval).hide();
-                        str__kvmexterdertypev = "";
-                    }
-                    str__modelname = $("#txtmodelno").html();
+                if (this.checked) {
+                    //alert($(this).val());
+                    $("#kvmextendertype_" + netid).show();
+                    $("#optopms-" + mtval).show();
+                    str__kvmexterdertype += $(this).val() + ", ";
+                    str__kvmexterdertypev = mtval + "-";
+                } else {
+                    $("#kvmextendertype_" + netid).hide();
+                    $("#optopms-" + mtval).hide();
+                    str__kvmexterdertypev = "";
+                }
+                str__modelname = $("#txtmodelno").html();
             });
 
             ProductEnquiry();
@@ -1508,7 +1583,7 @@
                     $("#id_Mounting").text($(this).val());
                     str__Mounting = $(this).val();
                 }
-                
+
                 if ($(this).attr('name') == "Stainless") {
                     $("#id_Stainless").text($(this).val());
                     str__stainless = $(this).val();
@@ -1595,23 +1670,23 @@
             var modelnumb = "";
             //$("#hidemodelno").html($("#txtmodelno").html);
             //var modelul = $("#hidemodelno");
-          //  modelul.find('li[style="display:none"]').remove();
+            //  modelul.find('li[style="display:none"]').remove();
 
-            @if (producttype == "Touch Computer")
-            {
-            <text>modelnumb += '@modelno-';</text>
-           }
-           else if (producttype == "Monitor")
-           {
-           <text>modelnumb += '@modelno-M';</text>
-            }
-            else if (producttype == "Computer")
-            {
-                  <text>modelnumb += '@Model.ModelNumber-';</text>
-            }
+        @if (producttype == "Touch Computer")
+        {
+            <text>modelnumb += '@modelno-'; </text>
+        }
+        else if (producttype == "Monitor")
+        {
+            <text>modelnumb += '@modelno-M'; </text>
+        }
+        else if (producttype == "Computer")
+        {
+            <text>modelnumb += '@Model.ModelNumber-'; </text>
+        }
 
-            
-            modelnumb += $("#id_pbprocessor").text();
+
+                modelnumb += $("#id_pbprocessor").text();
             modelnumb += '-';
             modelnumb += $("#id_pbtouchtype").text();
             modelnumb += '-';
