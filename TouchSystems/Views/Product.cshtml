@@ -1308,7 +1308,7 @@
                     <aside class="widget widget_same-brand">
                         <div class="screensizebox  visible">
                             <div class="btnscreensizes" style="background-blend-mode: normal;">
-                                <a class="" href="#" style="display: block;"></a>
+                                <a class="" style="display: block;cursor: pointer;">Display Sizes</a>
                             </div>
                             <div>
                                 @if ((Model.ScreenSizes != null) && (Model.ScreenSizes.Count() > 0))
@@ -1332,26 +1332,30 @@
 </div>
 @section footerscript{
     <script>
-        $(()=>{
-            $("a[href='#tab-2'],a[href='#tab-6'],a[href='#tab-3']").click(()=>{
+        $(() => {
+            $("a[href='#tab-2'],a[href='#tab-6'],a[href='#tab-3']").click(() => {
                 if (window.screen.width <= 1024) {
-                    $(".screensizebox").animate({ "right": "70px" }, "slow");
-                }else{
+                    if ("@isNotSelected" == "True") {
+                        $(".screensizebox").animate({ "right": "70px" }, "slow");
+                    }
+                } else {
                     $(".screensizebox").animate({ "right": "20%" }, "slow");
                 }
             });
 
-            if("@isNotSelected" == "True"){
+
+            if ("@isNotSelected" == "True") {
                 if (window.screen.width <= 1024) {
-                    $(".screensizebox").animate({ "right": "70px" }, "slow");
-                }else{
+                    //$(".screensizebox").animate({ "right": "70px" }, "slow");
+                } else {
                     $(".screensizebox").animate({ "right": "20%" }, "slow");
                 }
             }
-            
-            if(window.screen.width <= 768){
+
+
+            if (window.screen.width <= 768) {
                 $(".btnscreensizes a").css("height", "82px").text("Display Sizes Menu");
-            }else{
+            } else {
                 $(".btnscreensizes a").css("height", "59px").text("Display Sizes");
             }
         });

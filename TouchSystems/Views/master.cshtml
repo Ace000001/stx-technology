@@ -34,6 +34,7 @@
     string[] mURL = Model.Url().Split('/');
     string mURLHRef = mURL[1];
     string mURLPath = "";
+    bool isLinkForwarded = langcode != null ? Model.Url().IndexOf(langcode, StringComparison.OrdinalIgnoreCase) < 0 : true;
 
     int i = 0;
     foreach (string mU in mURL)
@@ -456,7 +457,7 @@
 
     <div class="rp-contactpop fixed">
 
-        <div class="btngetintouch"><a href="#">@home.GetInTouch</a></div>
+        <div class="btngetintouch"><a style="cursor:pointer">@home.GetInTouch</a></div>
         <div class="ewscontactpop">
             <h3>Give us a Call</h3>
             <p>
@@ -473,7 +474,7 @@
                     Quick quote request
                 </div>
             </div>
-            @if (TempData["submitted"] == null || !(bool)TempData["submitted"])
+            @if (TempData["response"] == null)
             {
                 @using (Html.BeginUmbracoForm<TouchSystems.Controller.ContactFormController>(nameof(TouchSystems.Controller.ContactFormController.SubmitGetintouch)))
                 {
@@ -547,6 +548,7 @@
     <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700&amp;amp;subset=latin-ext" rel="stylesheet">
     @Html.Raw(await runtimeMinifier.RenderCssHereAsync("registered-css-bundle"))
     @Html.Raw(await runtimeMinifier.RenderJsHereAsync("registered-js-bundle"))
+    <script src="~/scripts/geoLocator.js"></script>
 
     <script type="text/javascript">
         function checkIfEmptyNull(e) {
@@ -577,21 +579,17 @@
                 $(".rp-contactpop").css({ "right": "10px" }).addClass('visible');
             }
             /**/
-            $(".screensizebox").mouseenter(function () {
-                if (window.screen.width <= 1024) {
-                    $(this).animate({ "right": "70px" }, "slow");
-                }else{
-                    $(this).animate({ "right": "20%" }, "slow");
-                }
-            }).mouseleave(function () {
-                setTimeout(function () {
-                    if ($('.screensizebox:hover').length == 0) {
-                        $(".screensizebox").animate({ "right": "-112px" }, "slow").removeClass('visible');
+            $(".btnscreensizes a").click(function () {
+                if ($(".screensizebox").hasClass('visible')) {
+                    $(".screensizebox").animate({ "right": "-112px" }, "slow").removeClass('visible');
+                } else {
+                    if (window.screen.width <= 1024) {
+                        $(".screensizebox").animate({ "right": "70px" }, "slow").addClass('visible');;
+                    } else {
+                        $(".screensizebox").animate({ "right": "20%" }, "slow").addClass('visible');;
                     }
-                }, 2000)
-
+                }
             });
-
 
             $(".btngetintouch").click(function () {
                 if ($(".rp-contactpop").hasClass('visible')) {
@@ -603,21 +601,27 @@
 
             $(".stx-region").click(function (e) {
                 e.preventDefault();
-                let country = $(this).attr("rel");
-                var pageid = $("#currentpageid").val();
-                var cultureinfo = $(this).attr("data-value");
-                if (checkIfEmptyNull(pageid) == false) {
-                    $("#langpageid").val(pageid);
-                }
-                $("#cultureinfo").val(cultureinfo);
-                $("#langcountry").val(country);
-                $("#langswitcher").find('form').submit();
+                switchLang($(this));
             });
 
             var strcountryflag = $(".stx-region[rel='@region']").first().find("img").attr("src");
             $("#flagimg").attr("src", strcountryflag);
 
+            //lang switch based on location
 
+            if ("@isLinkForwarded" == "True") {
+                if ("@langcode" != "") {
+                    var langOption = $(".ps-dropdown-menu").find("a.stx-region[rel='@langcode?.ToLower()']");
+                    switchLang(langOption);
+                } else {
+                    var userCountry = getCountry();
+                    var langOption = $(".ps-dropdown-menu").find("a.stx-region[data-value='en-" + userCountry + "']");
+                    if (langOption.length === 0) {
+                        langOption = $(".ps-dropdown-menu").find("a.stx-region[data-value='en-US']");
+                    }
+                    switchLang(langOption);
+                }
+            }
         });
 
 
