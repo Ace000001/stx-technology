@@ -1334,12 +1334,13 @@
     <script>
         $(() => {
             $("a[href='#tab-2'],a[href='#tab-6'],a[href='#tab-3']").click(() => {
-                if (window.screen.width <= 1024) {
-                    if ("@isNotSelected" == "True") {
+                if ("@isNotSelected" == "True") {
+                    if (window.screen.width <= 1024) {
                         $(".screensizebox").animate({ "right": "70px" }, "slow");
+
+                    } else {
+                        $(".screensizebox").animate({ "right": "20%" }, "slow");
                     }
-                } else {
-                    $(".screensizebox").animate({ "right": "20%" }, "slow");
                 }
             });
 

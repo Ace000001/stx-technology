@@ -5,50 +5,57 @@
     var message = TempData["Msg"]?.ToString();
 }
 <div class="form-group ">
-    @using (Html.BeginUmbracoForm<TouchSystems.Controller.ContactFormController>(nameof(TouchSystems.Controller.ContactFormController.Submit)))
+
+    @if (!string.IsNullOrEmpty(message))
     {
-        <div class="">
-            @Html.HiddenFor(m => m.Token)
-            @Html.HiddenFor(m => m.Threshold)
-            <input type="hidden" name="Threshold" id="Threshold" value="">
-            @Html.Hidden("Country", System.Threading.Thread.CurrentThread.CurrentCulture.DisplayName)
-            @Html.TextBoxFor(m => m.Name, new { @class = "form-control", placeholder = "Your Name" })
-            @Html.ValidationMessageFor(m => m.Name)
-        </div>
-        <div>
-            @Html.TextBoxFor(m => m.CompanyName, new { @class = "form-control", placeholder = "Company Name" })
-
-        </div>
-        <div>
-            <input type="hidden" name="LastName" id="LastName">
-            <input type="hidden" name="Product" id="Product">
-            @Html.HiddenFor(m => m.LastName, new { @class = "form-control" })
-            @Html.HiddenFor(m => m.Product, new { @class = "form-control"})
-            @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control", placeholder = "Phone Number" })
-            @Html.ValidationMessageFor(m => m.PhoneNumber)
-        </div>
-        <div>
-
-            @*  @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control", placeholder = "Last Name" })
-        @Html.ValidationMessageFor(m => m.PhoneNumber)*@
-        </div>
-        <div>
-            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = Html.DisplayNameFor(m => m.Email) })
-            @Html.ValidationMessageFor(m => m.Email)
-        </div>
-        <div>
-            @Html.TextAreaFor(m => m.Message, new { @class = "form-control", placeholder = Html.DisplayNameFor(m => m.Message) })
-            @Html.ValidationMessageFor(m => m.Message)
-        </div>
-        <input type="submit" name="Submit" value="Submit" />
-        @if (!string.IsNullOrEmpty(message))
+        <p>@message</p>
+        <p>
+            Our team of specialists is already working on your request and we will be back in the shortest time possible.
+        </p>
+    }
+    else
+    {
+        @using (Html.BeginUmbracoForm<TouchSystems.Controller.ContactFormController>(nameof(TouchSystems.Controller.ContactFormController.Submit)))
         {
-            @message
-        }           }
+            <div class="">
+                @Html.HiddenFor(m => m.Token)
+                @Html.HiddenFor(m => m.Threshold)
+                <input type="hidden" name="Threshold" id="Threshold" value="">
+                @Html.Hidden("Country", System.Threading.Thread.CurrentThread.CurrentCulture.DisplayName)
+                @Html.TextBoxFor(m => m.Name, new { @class = "form-control", placeholder = "Your Name" })
+                @Html.ValidationMessageFor(m => m.Name)
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.CompanyName, new { @class = "form-control", placeholder = "Company Name" })
 
-    <p class="tp-text">
-        This site is protected by reCAPTCHA and the Google
-        <a href="https://policies.google.com/privacy">Privacy Policy</a> and
-        <a href="https://policies.google.com/terms">Terms of Service</a> apply.
-    </p>
+            </div>
+            <div>
+                <input type="hidden" name="LastName" id="LastName">
+                <input type="hidden" name="Product" id="Product">
+                @Html.HiddenFor(m => m.LastName, new { @class = "form-control" })
+                @Html.HiddenFor(m => m.Product, new { @class = "form-control"})
+                @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control", placeholder = "Phone Number" })
+                @Html.ValidationMessageFor(m => m.PhoneNumber)
+            </div>
+            <div>
+
+                @*  @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control", placeholder = "Last Name" })
+        @Html.ValidationMessageFor(m => m.PhoneNumber)*@
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = Html.DisplayNameFor(m => m.Email) })
+                @Html.ValidationMessageFor(m => m.Email)
+            </div>
+            <div>
+                @Html.TextAreaFor(m => m.Message, new { @class = "form-control", placeholder = Html.DisplayNameFor(m => m.Message) })
+                @Html.ValidationMessageFor(m => m.Message)
+            </div>
+            <input type="submit" name="Submit" value="Submit" />
+        }
+        <p class="tp-text">
+            This site is protected by reCAPTCHA and the Google
+            <a href="https://policies.google.com/privacy">Privacy Policy</a> and
+            <a href="https://policies.google.com/terms">Terms of Service</a> apply.
+        </p>
+    }
 </div>

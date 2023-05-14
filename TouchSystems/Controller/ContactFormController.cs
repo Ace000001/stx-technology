@@ -117,7 +117,7 @@ namespace TouchSystems.Controller
                 {
                     MailService ms = new MailService(_config);
                     ms.SendGetinTouch(name, email, phone, message, country, Company) ;
-                TempData["response"] = "Form Submitted Successfully.";
+                TempData["response"] = "Thank you for contacting us!";
                 }
                 else
                 {
