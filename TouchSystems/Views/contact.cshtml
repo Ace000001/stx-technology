@@ -4,31 +4,32 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Contact>
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
-@{ Layout = "master.cshtml"; 
- var home = (Home)Model.Root();
-var regioncode = HttpContextAccessor.HttpContext.Request.Cookies["region"];
-  var regionnumber = "";
-  var regiontitle = "";
-  if(regioncode != null)
-{
-if (home.RegionalPhoneNumbers != null){
-foreach (var item in home.RegionalPhoneNumbers.Where(x => x.Value("regionNames").ToString().ToLower().Contains(regioncode.ToLower())).Take(1))
-{
- regionnumber  = item.PhoneNumber;
- regiontitle = item.Title;
-}
-}
+@{
+    Layout = "master.cshtml";
+    var home = (Home)Model.Root();
+    var regioncode = HttpContextAccessor.HttpContext.Request.Cookies["region"];
+    var regionnumber = "";
+    var regiontitle = "";
+    if (regioncode != null)
+    {
+        if (home.RegionalPhoneNumbers != null)
+        {
+            foreach (var item in home.RegionalPhoneNumbers.Where(x => x.Value("regionNames").ToString().ToLower().Contains(regioncode.ToLower())).Take(1))
+            {
+                regionnumber = item.PhoneNumber;
+                regiontitle = item.Title;
+            }
+        }
+    }
 
-}
-   
 
     var herobackground = "";
-   if (Model.Value("heroBackground") != null)
-                    {
-                         if (Model.Value<IPublishedContent>("heroBackground") != null)
-                                            {
-                        herobackground = Model.Value<IPublishedContent>("heroBackground").Url();
-                                            }
+    if (Model.Value("heroBackground") != null)
+    {
+        if (Model.Value<IPublishedContent>("heroBackground") != null)
+        {
+            herobackground = Model.Value<IPublishedContent>("heroBackground").Url();
+        }
     }
 
     var threshold = Convert.ToDouble(
@@ -39,47 +40,51 @@ foreach (var item in home.RegionalPhoneNumbers.Where(x => x.Value("regionNames")
                         .First()
                         .Value("reCaptchaScoreThreshold")
                     );
+    var isSubmitted = !string.IsNullOrEmpty(TempData["Msg"]?.ToString());
 
 }
 
 
 
 @section Header{
-@if(!string.IsNullOrEmpty(herobackground))
-{
+    @if (!string.IsNullOrEmpty(herobackground))
+    {
+
+        <style>
+            #headerimage {
+                background-image: url(@herobackground) !important
+            }
+        </style>
+    }
+
+
 
     <style>
-    #headerimage{
-        background-image:url(@herobackground) !important
-    }
+        ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+            color: white !important;
+            opacity: 1; /* Firefox */
+        }
+
+        :-ms-input-placeholder { /* Internet Explorer 10-11 */
+            color: white !important;
+            opacity: 1;
+        }
+
+        ::-ms-input-placeholder { /* Microsoft Edge */
+            color: white !important;
+            opacity: 1; /* Firefox */
+        }
+
+        .form-control:focus {
+            color: white;
+        }
     </style>
 }
 
 
 
-<style>
-::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
-  color: white !important;
-  opacity: 1; /* Firefox */
-}
-
-:-ms-input-placeholder { /* Internet Explorer 10-11 */
-   color: white  !important;
-  opacity: 1;
-}
-
-::-ms-input-placeholder { /* Microsoft Edge */
-  color: white !important;
-  opacity: 1; /* Firefox */
-}
-.form-control:focus{ color:white; }
-</style>
-}
-
-
-
 @section BannerText{
-        <h1>Contact Us</h1>
+    <h1>Contact Us</h1>
 }
 <input type="hidden" name="currentpageid" id="currentpageid" value="@Model.Id" />
 <div class="ps-product-list ps-product-list--2">
@@ -92,12 +97,13 @@ foreach (var item in home.RegionalPhoneNumbers.Where(x => x.Value("regionNames")
                     @Model.PageTitle
                 </span>
             </div>
-            <div class="row contactpage"  >
+            <div class="row contactpage">
                 <div class="col-md-4">
 
                     @if (Model.Flag != null)
                     {
-        <img src="@Model.Flag.GetCropUrl(width: 120, height: 62, quality:80, furtherOptions: "&format=webp")" alt="@Model.Flag.Name" title="@Model.Flag.Name" style="max-width:120px">}
+                        <img src="@Model.Flag.GetCropUrl(width: 120, height: 62, quality:80, furtherOptions: "&format=webp")" alt="@Model.Flag.Name" title="@Model.Flag.Name" style="max-width:120px">
+                    }
                     <div class="contact_ad">
                         <h2>@Model.CountryName</h2>
                         <p>
@@ -110,27 +116,30 @@ foreach (var item in home.RegionalPhoneNumbers.Where(x => x.Value("regionNames")
 
                 </div>
                 <div class="col-md-3" style="border-right: dashed 1px #070606; border-left: dashed 1px #070606; padding-left: 30px;">
-                    <div >
-                    <p><strong>Contact Numbers</strong></p>
-                    @if(!string.IsNullOrEmpty(regionnumber))
-                    {
+                    <div id="return-mark">
+                        <p><strong>Contact Numbers</strong></p>
+                        @if (!string.IsNullOrEmpty(regionnumber))
+                        {
 
-<p>
-@regiontitle<br />
-                    @regionnumber<Br>
-</p>
-                    }
-                    
-                    @Model.ContactNumbers        
+                            <p>
+                                @regiontitle<br />
+                                @regionnumber<Br>
+                            </p>
+                        }
+
+                        @Model.ContactNumbers
                     </div>
-                
+
                 </div>
                 <div class="col-md-5">
                     <div class="contact-form">
                         @Model.ContactIntro
-                        @{ await Html.RenderPartialAsync("Partials/ContactForm", new ContactFromVM(){
-                            Threshold = threshold,
-                        }); }
+                        @{
+                            await Html.RenderPartialAsync("Partials/ContactForm", new ContactFromVM()
+            {
+                Threshold = threshold,
+            });
+                        }
                     </div>
 
                 </div>
@@ -150,22 +159,39 @@ foreach (var item in home.RegionalPhoneNumbers.Where(x => x.Value("regionNames")
                     {
                         if (item.CountryCode != Model.CountryCode)
                         {
-        <div class="morelocitem">
-            @if (item.Flag != null)
-            {
-<img src="@item.Flag.GetCropUrl(width: 120, height: 62, quality:80, furtherOptions: "&format=webp")" alt="@item.Flag.Name" title="@item.Flag.Name" style="max-width:120px">}
-            <div class="contact_ad">
-                <h3> @item.Country</h3>
-                <p>@item.Address</p>
-            </div>
+                            <div class="morelocitem">
+                                @if (item.Flag != null)
+                                {
+                                    <img src="@item.Flag.GetCropUrl(width: 120, height: 62, quality:80, furtherOptions: "&format=webp")" alt="@item.Flag.Name" title="@item.Flag.Name" style="max-width:120px">
+                                }
+                                <div class="contact_ad">
+                                    <h3> @item.Country</h3>
+                                    <p>@item.Address</p>
+                                </div>
 
 
 
-        </div>}
-}
+                            </div>
+                        }
+                    }
                 </div>
 
             </div>
         </div>
     </div>
 </div>
+@section footerscript{
+    <script>
+        $(() => {
+            if ("@isSubmitted" === "True") {
+                var topOffset = $("#return-mark").offset().top;
+                if(window.screen.width > 1024){
+                    topOffset += -150;
+                }
+                $('html, body').animate({
+                    scrollTop: topOffset,
+                }, 1000);
+            }
+        });
+    </script>
+}

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
@@ -48,8 +49,6 @@ namespace TouchSystems.Controller
         [HttpPost]
         public IActionResult Switch(string langcountry, string langdata, string url, string langpageid,string cultureinfo)
         {
-            string oldcountry = httpContextAccessor.HttpContext.Request.Cookies["LanguageCode"];
-
             CookieOptions option = new CookieOptions();
             option.Expires = DateTime.Now.AddDays(20);
             HttpContext.Response.Cookies.Append(langdata, langcountry, option);
@@ -62,7 +61,8 @@ namespace TouchSystems.Controller
             //    get region name
             if (!string.IsNullOrEmpty(langpageid)) {
                 var node = GetContent(int.Parse(langpageid));
-                return Redirect(node.Url().Replace("/" + oldcountry, "/" + langcountry));
+                var match = Regex.Match(node.Url(), @"((EN|en)-([A-Z]|[a-z]){2})");
+                return Redirect(node.Url().Replace("/" + match.Value, "/" + langcountry));
             }
             else{
                   return Redirect(websiteurl + "/" + langcountry);
