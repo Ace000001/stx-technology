@@ -58,7 +58,7 @@ namespace TouchSystems.Controller
                 {
                     MailService ms = new MailService(_config);
                     ms.SendConactForm(model);
-                    TempData["Msg"] = "Form Submitted Successfully.";
+                    TempData["Msg"] = "Thank you for contacting us!";
 
                 }
                 else {
@@ -87,7 +87,7 @@ namespace TouchSystems.Controller
                 {
                     MailService ms = new MailService(_config);
                     ms.SendProductEnquiry(model, ProductEnquiry);
-                    TempData["Msg"] = "Form Submitted Successfully.";
+                    TempData["Msg"] = "Thank you for contacting us!";
 
                 }
                 else
